@@ -1,0 +1,741 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Irrigação da Horta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+</head>
+<body>
+  
+<style>
+/* Layout: coluna de leitura estreita; o diagrama de ligação ocupa a largura toda e rola de lado no celular. */
+:root {
+  --bg: #f3f6f2;
+  --surface: #ffffff;
+  --fg: #1b2620;
+  --muted: #5a6b61;
+  --line: #d6e0d8;
+  --accent: #b5651d;          /* cobre, como fio de cobre */
+  --accent-soft: #f6e7d8;
+  --board: #17607a;
+  --on-board: #ffffff;
+  --header: #0e3a4a;
+  --module: #234a8a;
+  --part: #e9eeea;
+  --part-stroke: #8a9a90;
+  --metal: #b9c2c7;
+  --relay: #3b82c4;
+  --w5v: #d22f2f;
+  --wgnd: #26302b;
+  --wd2: #d9a400;
+  --wd3: #2b7bd6;
+  --wd7: #e0701b;
+  --wd8: #8a4fd1;
+  --wsig: #7c8a82;
+  --ok: #2e7d4f;
+  --warn: #a35c00;
+  --warn-bg: #fff3e0;
+  --code-bg: #1d2421;
+  --code-fg: #e4ece6;
+  --f-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121815; --surface: #1a221e; --fg: #e3ebe5; --muted: #9aaba1; --line: #2c3832;
+    --accent: #e0914a; --accent-soft: #3a2a1c;
+    --board: #1d6f8c; --header: #0b2c38; --module: #2c5aa6;
+    --part: #26302b; --part-stroke: #7d8d84; --metal: #8d979c; --relay: #5b9fdc;
+    --w5v: #ff5c5c; --wgnd: #c9d3cd; --wd2: #f2c230; --wd3: #5aa2ff; --wd7: #ff9447; --wd8: #b388ff; --wsig: #93a29a;
+    --ok: #5cc08a; --warn: #ffb35c; --warn-bg: #33270f;
+    --code-bg: #0c100e; --code-fg: #e4ece6;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121815; --surface: #1a221e; --fg: #e3ebe5; --muted: #9aaba1; --line: #2c3832;
+  --accent: #e0914a; --accent-soft: #3a2a1c;
+  --board: #1d6f8c; --header: #0b2c38; --module: #2c5aa6;
+  --part: #26302b; --part-stroke: #7d8d84; --metal: #8d979c; --relay: #5b9fdc;
+  --w5v: #ff5c5c; --wgnd: #c9d3cd; --wd2: #f2c230; --wd3: #5aa2ff; --wd7: #ff9447; --wd8: #b388ff; --wsig: #93a29a;
+  --ok: #5cc08a; --warn: #ffb35c; --warn-bg: #33270f;
+  --code-bg: #0c100e; --code-fg: #e4ece6;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--f-body); font-size: 17px; line-height: 1.6;
+  padding-inline: 16px; padding-block: 0 64px;
+}
+.wrap { max-width: 760px; margin: 0 auto; }
+.wide { max-width: 1040px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.15; }
+h1 { font-size: clamp(2rem, 6vw, 3.1rem); font-weight: 800; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: 1.7rem; font-weight: 800; margin: 0 0 12px; }
+h3 { font-size: 1.15rem; font-weight: 600; margin: 0 0 6px; }
+p { margin: 0 0 12px; }
+a { color: var(--accent); }
+code, kbd { font-family: var(--f-mono); font-size: 0.86em; }
+code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+kbd { border: 1px solid var(--line); border-bottom-width: 2px; padding: 1px 6px; border-radius: 4px; background: var(--surface); }
+
+header.top { padding-block: 48px 28px; }
+.eyebrow { font-family: var(--f-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.lead { color: var(--muted); font-size: 1.1rem; max-width: 60ch; margin-top: 14px; }
+
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+nav.toc a { text-decoration: none; color: var(--fg); border: 1px solid var(--line); background: var(--surface); padding: 6px 12px; border-radius: 999px; font-size: 0.92rem; }
+nav.toc a:hover, nav.toc a:focus-visible { border-color: var(--accent); outline: none; }
+
+section { padding-block: 36px 8px; border-top: 1px solid var(--line); margin-top: 28px; }
+
+.diagram-box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; overflow-x: auto; }
+.diagram-box svg { display: block; min-width: 760px; width: 100%; height: auto; }
+.caption { color: var(--muted); font-size: 0.92rem; margin-top: 10px; }
+
+/* SVG */
+.board { fill: var(--board); }
+.header { fill: var(--header); }
+.chip { fill: var(--header); }
+.metal { fill: var(--metal); }
+.on-board { fill: var(--on-board); font-family: var(--f-mono); font-size: 13px; }
+.board-title { fill: var(--on-board); font-family: var(--f-display); font-weight: 800; font-size: 22px; }
+.pin { fill: var(--metal); stroke: var(--header); stroke-width: 2; }
+.module { fill: var(--module); }
+.mod-text { fill: #ffffff; font-family: var(--f-mono); font-size: 12px; }
+.part { fill: var(--part); stroke: var(--part-stroke); stroke-width: 1.5; }
+.cap { fill: var(--w5v); stroke: var(--part-stroke); stroke-width: 1.5; }
+.relaycube { fill: var(--relay); }
+.pot { fill: var(--metal); }
+.plate { fill: #1f5130; }
+.trace { stroke: #e2c26b; stroke-width: 3; fill: none; }
+.lbl { fill: var(--fg); font-family: var(--f-body); font-size: 14px; font-weight: 700; }
+.sub { fill: var(--muted); font-family: var(--f-body); font-size: 12px; }
+.part-text { fill: var(--fg); font-family: var(--f-body); font-size: 13px; font-weight: 700; }
+.pol { fill: var(--fg); font-family: var(--f-mono); font-size: 13px; font-weight: 600; }
+.w { fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.w5v { stroke: var(--w5v); } .wgnd { stroke: var(--wgnd); }
+.wd2 { stroke: var(--wd2); } .wd3 { stroke: var(--wd3); }
+.wd7 { stroke: var(--wd7); } .wd8 { stroke: var(--wd8); }
+.wsig { stroke: var(--wsig); }
+.dot5 { fill: var(--w5v); } .dotg { fill: var(--wgnd); }
+
+/* Tabela de ligações */
+.table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--f-mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+.sw { display: inline-block; width: 22px; height: 6px; border-radius: 3px; vertical-align: middle; margin-right: 8px; }
+
+/* Passos */
+ol.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; display: grid; gap: 18px; }
+ol.steps > li { counter-increment: s; display: grid; grid-template-columns: 38px 1fr; gap: 14px; }
+ol.steps > li::before {
+  content: counter(s); font-family: var(--f-display); font-weight: 800; font-size: 1.05rem;
+  width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent);
+}
+ol.steps > li > div { min-width: 0; }
+ol.steps ul { margin: 6px 0 0; padding-left: 20px; }
+
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 24px; padding-left: 20px; margin: 0; }
+.parts li { margin-bottom: 4px; }
+
+.note { border-left: 4px solid var(--warn); background: var(--warn-bg); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+.note strong { color: var(--warn); }
+.good { border-left-color: var(--ok); }
+.good strong { color: var(--ok); }
+
+pre { background: var(--code-bg); color: var(--code-fg); font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.55; padding: 14px 16px; border-radius: 8px; overflow-x: auto; margin: 10px 0 0; }
+.code-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+button.copy { font: inherit; font-size: 0.9rem; font-weight: 700; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+button.copy:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
+details { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px 16px; margin-top: 12px; }
+summary { cursor: pointer; font-weight: 700; }
+.mono { font-family: var(--f-mono); }
+
+@media (max-width: 520px) {
+  body { font-size: 16px; }
+  ol.steps > li { grid-template-columns: 30px 1fr; gap: 10px; }
+  ol.steps > li::before { width: 30px; height: 30px; font-size: 0.9rem; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Arduino UNO · Projeto da horta</div>
+    <h1>Irrigação da Horta</h1>
+    <p class="lead">Como ligar os fios, gravar o código no Arduino e testar cada parte antes de colocar água nas bombas.</p>
+    <nav class="toc" aria-label="Seções">
+      <a href="#material">Material</a>
+      <a href="#ligacao">Ligação</a>
+      <a href="#instalar">Instalar e gravar</a>
+      <a href="#testar">Testar</a>
+      <a href="#problemas">Problemas comuns</a>
+      <a href="#codigo">Código</a>
+    </nav>
+  </header>
+
+  <section id="material">
+    <h2>Material</h2>
+    <ul class="parts">
+      <li>1 Arduino UNO + cabo USB</li>
+      <li>1 módulo relé de <strong>2 canais</strong>, bobina 5V</li>
+      <li>1 sensor de chuva (placa + módulo LM393)</li>
+      <li>1 botão (push button)</li>
+      <li>1 bomba de alta pressão 12V</li>
+      <li>1 bomba submersa 5V</li>
+      <li>1 fonte 12V (corrente acima da bomba)</li>
+      <li>1 fonte 5V separada para a submersa</li>
+      <li>Fios jumper macho-fêmea e macho-macho</li>
+      <li>Protoboard (opcional, ajuda nos testes)</li>
+    </ul>
+    <div class="note">
+      <strong>Sobre os relés de 5V e 12V.</strong> O "5V" de um relé é a tensão da bobina, que é o lado que o Arduino comanda. Os dois relés devem ter bobina de 5V. Quem define se ele liga 5V ou 12V é o que você coloca nos contatos (COM e NO). Um módulo de 2 canais resolve as duas bombas de uma vez. Um relé com bobina de 12V não funciona direto no Arduino.
+    </div>
+  </section>
+</div>
+
+<section id="ligacao" class="wide">
+  <div class="wrap" style="padding:0">
+    <h2>Diagrama de ligação</h2>
+    <p>Cada cor de fio corresponde a uma ligação da tabela logo abaixo. Faça as ligações com o Arduino desconectado do USB e das fontes.</p>
+  </div>
+  <div class="diagram-box">
+    <svg viewBox="0 0 1000 660" role="img" aria-label="Diagrama de ligação: Arduino UNO ligado ao botão, ao sensor de chuva e ao módulo relé de dois canais, que comanda a bomba de alta pressão 12V e a bomba submersa 5V">
+      <!-- Arduino -->
+      <rect x="40" y="40" width="240" height="580" rx="12" class="board"/>
+      <rect x="20" y="90" width="44" height="64" rx="4" class="metal"/>
+      <text x="74" y="127" class="on-board">USB</text>
+      <rect x="20" y="500" width="44" height="70" rx="6" class="header"/>
+      <text x="74" y="539" class="on-board">Fonte</text>
+      <rect x="120" y="330" width="80" height="190" rx="4" class="chip"/>
+      <text x="160" y="425" class="on-board" text-anchor="middle" transform="rotate(-90 160 425)">ATmega328P</text>
+      <text x="150" y="250" class="board-title" text-anchor="middle">Arduino</text>
+      <text x="150" y="276" class="board-title" text-anchor="middle">UNO</text>
+      <rect x="258" y="60" width="22" height="500" rx="3" class="header"/>
+      <g>
+        <text x="250" y="85" class="on-board" text-anchor="end">5V</text>
+        <text x="250" y="115" class="on-board" text-anchor="end">GND</text>
+        <text x="250" y="175" class="on-board" text-anchor="end">D2</text>
+        <text x="250" y="320" class="on-board" text-anchor="end">D3</text>
+        <text x="250" y="495" class="on-board" text-anchor="end">D7</text>
+        <text x="250" y="535" class="on-board" text-anchor="end">D8</text>
+      </g>
+
+      <!-- Trilhas 5V e GND -->
+      <path class="w w5v" d="M280 80 H330 V415"/>
+      <path class="w wgnd" d="M280 110 H350 V440"/>
+      <text x="324" y="462" class="sub" text-anchor="end">5V</text>
+      <text x="356" y="462" class="sub">GND</text>
+
+      <!-- Botão -->
+      <path class="w wd2" d="M280 170 H440"/>
+      <path class="w wgnd" d="M440 200 H350"/>
+      <rect x="440" y="150" width="100" height="70" rx="6" class="part"/>
+      <circle cx="502" cy="185" r="18" class="cap"/>
+      <text x="490" y="240" class="lbl" text-anchor="middle">Botão</text>
+
+      <!-- Sensor de chuva -->
+      <path class="w w5v" d="M440 265 H330"/>
+      <path class="w wgnd" d="M440 290 H350"/>
+      <path class="w wd3" d="M280 315 H440"/>
+      <text x="432" y="344" class="sub" text-anchor="end">AO livre</text>
+      <rect x="440" y="250" width="160" height="105" rx="6" class="module"/>
+      <text x="450" y="269" class="mod-text">VCC</text>
+      <text x="450" y="294" class="mod-text">GND</text>
+      <text x="450" y="319" class="mod-text">DO</text>
+      <text x="450" y="344" class="mod-text">AO</text>
+      <circle cx="565" cy="275" r="11" class="pot"/>
+      <text x="565" y="300" class="mod-text" text-anchor="middle">ajuste</text>
+      <text x="520" y="376" class="lbl" text-anchor="middle">Módulo LM393</text>
+      <path class="w wsig" d="M600 290 H680"/>
+      <path class="w wsig" d="M600 315 H680"/>
+      <rect x="680" y="255" width="180" height="95" rx="4" class="plate"/>
+      <path class="trace" d="M690 268 H850 M700 280 H860 M690 292 H850 M700 304 H860 M690 316 H850 M700 328 H860 M690 340 H850"/>
+      <text x="770" y="226" class="lbl" text-anchor="middle">Placa do sensor de chuva</text>
+      <text x="770" y="244" class="sub" text-anchor="middle">no reservatório do meio, na altura do nível</text>
+
+      <!-- Módulo relé -->
+      <path class="w w5v" d="M440 415 H330"/>
+      <path class="w wgnd" d="M440 440 H350"/>
+      <path class="w wd7" d="M280 490 H440"/>
+      <path class="w wd8" d="M280 530 H440"/>
+      <rect x="440" y="400" width="200" height="212" rx="6" class="module"/>
+      <text x="450" y="419" class="mod-text">VCC</text>
+      <text x="450" y="444" class="mod-text">GND</text>
+      <text x="450" y="494" class="mod-text">IN1</text>
+      <text x="450" y="534" class="mod-text">IN2</text>
+      <rect x="500" y="412" width="78" height="66" rx="4" class="relaycube"/>
+      <text x="539" y="450" class="mod-text" text-anchor="middle">K1</text>
+      <rect x="500" y="528" width="78" height="66" rx="4" class="relaycube"/>
+      <text x="539" y="566" class="mod-text" text-anchor="middle">K2</text>
+      <text x="622" y="424" class="mod-text" text-anchor="end">NO</text>
+      <text x="622" y="444" class="mod-text" text-anchor="end">COM</text>
+      <text x="622" y="464" class="mod-text" text-anchor="end">NC</text>
+      <text x="622" y="544" class="mod-text" text-anchor="end">NO</text>
+      <text x="622" y="564" class="mod-text" text-anchor="end">COM</text>
+      <text x="622" y="584" class="mod-text" text-anchor="end">NC</text>
+      <text x="540" y="636" class="lbl" text-anchor="middle">Módulo relé 2 canais (bobina 5V)</text>
+
+      <!-- Canal 1: bomba de alta 12V -->
+      <path class="w w5v" d="M640 420 H720 V400 H760"/>
+      <path class="w w5v" d="M640 440 H700 V470 H760"/>
+      <path class="w wgnd" d="M920 400 H970 V470 H920"/>
+      <rect x="760" y="380" width="160" height="40" rx="6" class="part"/>
+      <text x="840" y="405" class="part-text" text-anchor="middle">Bomba ALTA 12V</text>
+      <rect x="760" y="450" width="160" height="40" rx="6" class="part"/>
+      <text x="840" y="475" class="part-text" text-anchor="middle">Fonte 12V</text>
+      <text x="768" y="377" class="pol">+</text><text x="906" y="377" class="pol">−</text>
+      <text x="768" y="506" class="pol">+</text><text x="906" y="506" class="pol">−</text>
+
+      <!-- Canal 2: bomba submersa 5V -->
+      <path class="w w5v" d="M640 540 H720 V520 H760"/>
+      <path class="w w5v" d="M640 560 H700 V590 H760"/>
+      <path class="w wgnd" d="M920 520 H970 V590 H920"/>
+      <rect x="760" y="500" width="160" height="40" rx="6" class="part"/>
+      <text x="840" y="525" class="part-text" text-anchor="middle">Bomba SUBMERSA 5V</text>
+      <rect x="760" y="570" width="160" height="40" rx="6" class="part"/>
+      <text x="840" y="595" class="part-text" text-anchor="middle">Fonte 5V</text>
+      <text x="906" y="626" class="pol">−</text><text x="768" y="626" class="pol">+</text>
+
+      <!-- Pontos de ligação -->
+      <circle cx="330" cy="80" r="6" class="dot5"/>
+      <circle cx="330" cy="265" r="6" class="dot5"/>
+      <circle cx="330" cy="415" r="6" class="dot5"/>
+      <circle cx="350" cy="110" r="6" class="dotg"/>
+      <circle cx="350" cy="200" r="6" class="dotg"/>
+      <circle cx="350" cy="290" r="6" class="dotg"/>
+      <circle cx="350" cy="440" r="6" class="dotg"/>
+      <g>
+        <circle cx="280" cy="80" r="5" class="pin"/><circle cx="280" cy="110" r="5" class="pin"/>
+        <circle cx="280" cy="170" r="5" class="pin"/><circle cx="280" cy="315" r="5" class="pin"/>
+        <circle cx="280" cy="490" r="5" class="pin"/><circle cx="280" cy="530" r="5" class="pin"/>
+      </g>
+    </svg>
+  </div>
+  <p class="caption wrap" style="padding:0">Ponto cheio = fios ligados. Fios que se cruzam sem ponto não se tocam. As trilhas verticais de 5V e GND podem ser as linhas da protoboard.</p>
+
+  <div class="wrap" style="padding:0; margin-top:24px">
+    <h3>Tabela de ligações</h3>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Fio</th><th>De</th><th>Para</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sw" style="background:var(--w5v)"></span>5V</td><td>Arduino 5V</td><td>VCC do sensor e VCC do módulo relé</td></tr>
+          <tr><td><span class="sw" style="background:var(--wgnd)"></span>GND</td><td>Arduino GND</td><td>Botão, GND do sensor e GND do módulo relé</td></tr>
+          <tr><td><span class="sw" style="background:var(--wd2)"></span>D2</td><td>Arduino pino 2</td><td>Outro terminal do botão</td></tr>
+          <tr><td><span class="sw" style="background:var(--wd3)"></span>D3</td><td>Arduino pino 3</td><td>DO do módulo do sensor</td></tr>
+          <tr><td><span class="sw" style="background:var(--wd7)"></span>D7</td><td>Arduino pino 7</td><td>IN1 do relé, bomba de ALTA</td></tr>
+          <tr><td><span class="sw" style="background:var(--wd8)"></span>D8</td><td>Arduino pino 8</td><td>IN2 do relé, bomba SUBMERSA</td></tr>
+          <tr><td><span class="sw" style="background:var(--w5v)"></span>K1</td><td>Fonte 12V (+) → COM1<br>NO1 → bomba alta (+)</td><td>Bomba alta (−) → Fonte 12V (−)</td></tr>
+          <tr><td><span class="sw" style="background:var(--w5v)"></span>K2</td><td>Fonte 5V (+) → COM2<br>NO2 → bomba submersa (+)</td><td>Bomba submersa (−) → Fonte 5V (−)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <strong>Cuidados na ligação.</strong>
+      Use sempre o terminal <b>NO</b> (normalmente aberto), assim a bomba fica desligada se o Arduino estiver sem energia. O NC fica sem ligar.
+      As bombas nunca ligam no 5V do Arduino, cada uma tem a sua fonte. Como o relé separa os circuitos, as fontes das bombas <b>não</b> precisam ser ligadas no GND do Arduino. Isso corrige o que eu disse antes.
+      Botão de 4 pernas: use duas pernas em diagonal, que é o jeito certo de garantir que ele abre e fecha.
+      A placa do sensor vai na água, mas o módulo LM393 precisa ficar seco, fora do reservatório.
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section id="instalar">
+    <h2>Instalar e gravar no Arduino</h2>
+    <div class="note good"><strong>Não precisa de nenhuma biblioteca.</strong> O código usa só funções que já vêm no Arduino. Pode pular a parte do "Gerenciador de Bibliotecas".</div>
+    <ol class="steps">
+      <li><div>
+        <h3>Instale a Arduino IDE</h3>
+        <p>Baixe em <a href="https://www.arduino.cc/en/software" target="_blank" rel="noopener">arduino.cc/en/software</a> a versão 2.x para o seu sistema (Windows, macOS ou Linux) e instale normalmente. No Mac, arraste para a pasta Aplicativos.</p>
+      </div></li>
+      <li><div>
+        <h3>Abra o código</h3>
+        <p>Na IDE, vá em <kbd>Arquivo</kbd> → <kbd>Abrir</kbd> e escolha <code>IrrigacaoHorta/IrrigacaoHorta.ino</code>. O arquivo precisa ficar dentro de uma pasta com o mesmo nome (<code>IrrigacaoHorta</code>), senão a IDE pede para criar uma.</p>
+        <p>Se você tem só o código, crie um sketch novo (<kbd>Arquivo</kbd> → <kbd>Novo</kbd>), apague tudo, cole o código da seção <a href="#codigo">Código</a> e salve com o nome <code>IrrigacaoHorta</code>.</p>
+      </div></li>
+      <li><div>
+        <h3>Conecte o Arduino e escolha a placa</h3>
+        <p>Ligue o Arduino no USB. Em <kbd>Ferramentas</kbd> → <kbd>Placa</kbd> → <kbd>Arduino AVR Boards</kbd>, escolha <b>Arduino Uno</b>.</p>
+      </div></li>
+      <li><div>
+        <h3>Escolha a porta</h3>
+        <p>Em <kbd>Ferramentas</kbd> → <kbd>Porta</kbd>, escolha a que aparece quando o Arduino está ligado:</p>
+        <ul>
+          <li>Windows: <code>COM3</code>, <code>COM4</code>…</li>
+          <li>Mac: <code>/dev/cu.usbmodem…</code> ou <code>/dev/cu.usbserial…</code></li>
+        </ul>
+        <p>Se nenhuma porta aparecer, veja <a href="#problemas">Problemas comuns</a>. Placas genéricas com chip CH340 às vezes precisam de driver.</p>
+      </div></li>
+      <li><div>
+        <h3>Verifique e grave</h3>
+        <p>Clique em <b>✓ Verificar</b>. Deve terminar sem erros. Depois clique em <b>→ Carregar</b>. Os LEDs TX/RX da placa piscam e no fim aparece <i>"Carregamento concluído"</i>.</p>
+      </div></li>
+      <li><div>
+        <h3>Abra o Monitor Serial</h3>
+        <p>Clique na lupa no canto superior direito (ou <kbd>Ferramentas</kbd> → <kbd>Monitor Serial</kbd>) e selecione <b>9600 baud</b>. Deve aparecer:</p>
+        <pre>Sistema pronto. Aperte o botao para iniciar o ciclo.</pre>
+      </div></li>
+    </ol>
+  </section>
+
+  <section id="testar">
+    <h2>Testar por partes</h2>
+    <p>Teste nesta ordem. Nos testes 1 a 4 as fontes das bombas ficam <b>desligadas</b>: dá para ver tudo pelos LEDs e pelo clique dos relés, sem risco de queimar bomba a seco.</p>
+    <div class="note"><strong>Dica para os testes.</strong> No começo do código, troque os tempos máximos de 10 minutos para 1 minuto (<code>1UL * 60UL * 1000UL</code>). Assim você testa a proteção sem esperar muito. Depois volte ao valor normal.</div>
+    <ol class="steps">
+      <li><div>
+        <h3>Botão</h3>
+        <p>Só o Arduino no USB e o botão ligado. Aperte o botão: o LED da placa (L) acende e o Monitor Serial mostra <code>Ciclo iniciado</code>. Aperte de novo: aparece <code>PARADA DE EMERGENCIA</code> e o LED apaga.</p>
+      </div></li>
+      <li><div>
+        <h3>Relés</h3>
+        <p>Ligue o módulo relé (sem as bombas). Ao ligar o Arduino, os dois relés precisam ficar <b>desligados</b>. Aperte o botão: o K1 (bomba de alta) dá um clique e o LED dele acende.</p>
+        <p>Se os relés ligarem sozinhos assim que o Arduino liga, o seu módulo funciona ao contrário. Veja a seção de problemas.</p>
+      </div></li>
+      <li><div>
+        <h3>Sensor de chuva</h3>
+        <p>Ligue o sensor. Encoste um pano úmido ou pingue água na placa: o LED de sinal do módulo LM393 acende. Seque com papel toalha e ele apaga. Se não reagir, gire o parafuso azul (ajuste) aos poucos até o LED acender só quando está molhado.</p>
+      </div></li>
+      <li><div>
+        <h3>Ciclo completo, sem água</h3>
+        <p>Aperte o botão e molhe a placa do sensor. A sequência no Monitor Serial deve ser:</p>
+        <pre>Ciclo iniciado: bomba de ALTA ligada (irrigando).
+Agua detectada no reservatorio do meio. Aguardando para desligar a ALTA...
+Bomba de ALTA desligada. Aguardando 5 s para ligar a SUBMERSA...
+Bomba SUBMERSA ligada: devolvendo agua para o reservatorio de alta.
+Sensor seco: bomba SUBMERSA desligada. CICLO COMPLETO. Aperte o botao para novo ciclo.</pre>
+        <p>A última linha só aparece depois que você seca a placa. Entre as mensagens, confira o K1 desligar e, uns 5 segundos depois, o K2 ligar.</p>
+      </div></li>
+      <li><div>
+        <h3>Com bombas e água</h3>
+        <p>Agora ligue as fontes e coloque as bombas na água. Rode um ciclo inteiro olhando de perto, com a mão perto do botão para parar se precisar. Confira se a submersa desliga a tempo, sem secar o reservatório do meio.</p>
+        <p>A placa do sensor de chuva demora para secar. Se a submersa continuar ligando depois que a água baixou, troque o sensor por uma <b>boia de nível</b>, que liga nos mesmos pinos (D3 e GND) sem mudar o código. Para a boia, use <code>SENSOR_MOLHADO = LOW</code> e ative o resistor interno trocando <code>INPUT</code> por <code>INPUT_PULLUP</code> na linha do sensor.</p>
+      </div></li>
+    </ol>
+  </section>
+
+  <section id="problemas">
+    <h2>Problemas comuns</h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>O que acontece</th><th>Como resolver</th></tr></thead>
+        <tbody>
+          <tr><td>Nenhuma porta aparece na IDE</td><td>Troque o cabo USB (alguns só carregam e não passam dados). Placa genérica com CH340: instale o driver CH340 e reinicie a IDE.</td></tr>
+          <tr><td>Erro <span class="mono">avrdude: stk500_recv()</span> ao carregar</td><td>Porta ou placa errada em Ferramentas. Confira se escolheu Arduino Uno e a porta certa.</td></tr>
+          <tr><td>Os relés ligam sozinhos quando o Arduino liga</td><td>Seu módulo liga com HIGH. No código, troque para <code>RELE_LIGADO = HIGH</code> e <code>RELE_DESLIGADO = LOW</code>.</td></tr>
+          <tr><td>O ciclo pula direto para "Agua detectada" com o sensor seco</td><td>O sensor funciona ao contrário. Troque <code>SENSOR_MOLHADO</code> para <code>HIGH</code>, ou ajuste o parafuso do módulo.</td></tr>
+          <tr><td>O botão não faz nada</td><td>Botão de 4 pernas ligado com as duas pernas do mesmo lado. Use pernas em diagonal.</td></tr>
+          <tr><td>O Arduino reinicia quando a bomba liga</td><td>A bomba está puxando energia do Arduino. Cada bomba precisa da sua própria fonte, ligada só no relé.</td></tr>
+          <tr><td>Aparece "ERRO: tempo maximo"</td><td>A bomba ficou ligada mais que o limite. Verifique se o sensor está na altura certa e bem ligado, ou aumente o tempo máximo se os reservatórios forem grandes.</td></tr>
+          <tr><td>Monitor Serial mostra símbolos estranhos</td><td>Velocidade errada. Selecione 9600 baud.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <details>
+      <summary>Onde mudar os tempos</summary>
+      <p style="margin-top:10px">No começo do código, na parte de configurações:</p>
+      <ul>
+        <li><code>TEMPO_ANTES_DESLIGAR_ALTA</code>: espera depois que o sensor detecta água (2 s)</li>
+        <li><code>TEMPO_ANTES_LIGAR_SUBMERSA</code>: espera entre desligar a alta e ligar a submersa (5 s)</li>
+        <li><code>TEMPO_CONFIRMA_SENSOR</code>: quanto tempo o sensor precisa ficar molhado/seco para valer (1 s)</li>
+        <li><code>TEMPO_MAX_BOMBA_ALTA</code> e <code>TEMPO_MAX_BOMBA_SUBMERSA</code>: limite de segurança (10 min)</li>
+      </ul>
+      <p>Os valores estão em milissegundos: 1000 = 1 segundo.</p>
+    </details>
+  </section>
+
+  <section id="codigo">
+    <h2>Código</h2>
+    <div class="code-head">
+      <p style="margin:0">Arquivo <code>IrrigacaoHorta.ino</code>, completo e comentado.</p>
+      <button class="copy" id="copy-code" type="button">Copiar código</button>
+    </div>
+    <pre id="code">/*
+ * ==========================================================================
+ *  SISTEMA DE IRRIGAÇÃO DA HORTA COM REAPROVEITAMENTO DE ÁGUA
+ *  Placa: Arduino UNO
+ * ==========================================================================
+ *
+ *  COMO O SISTEMA FUNCIONA
+ *  -----------------------
+ *  Existem três níveis:
+ *    1) Reservatório de ALTA  -&gt; tem a água e a BOMBA DE ALTA PRESSÃO (12V),
+ *                                que alimenta os sprinklers da horta.
+ *    2) Horta                 -&gt; recebe a água dos sprinklers.
+ *    3) Reservatório do MEIO  -&gt; recebe a sobra da horta. Nele ficam o
+ *                                SENSOR DE CHUVA (nível) e a BOMBA SUBMERSA (5V),
+ *                                que devolve a água para o reservatório de alta.
+ *
+ *  SEQUÊNCIA DO CICLO (só começa ao apertar o botão):
+ *    1. Botão pressionado  -&gt; liga a bomba de alta (sprinklers).
+ *    2. Sensor detecta água no reservatório do meio
+ *                          -&gt; espera TEMPO_ANTES_DESLIGAR_ALTA.
+ *    3. Desliga a bomba de alta.
+ *    4. Espera TEMPO_ANTES_LIGAR_SUBMERSA (5 segundos).
+ *    5. Liga a bomba submersa (devolve a água para o reservatório de alta).
+ *    6. Quando o sensor NÃO detecta mais água -&gt; desliga a submersa.
+ *    7. Ciclo completo. O sistema fica parado esperando o botão de novo.
+ *
+ *  SEGURANÇA EXTRA:
+ *    - Apertar o botão DURANTE o ciclo desliga tudo (parada de emergência).
+ *    - Cada bomba tem um tempo máximo de funcionamento. Se passar disso,
+ *      tudo desliga (evita bomba queimar a seco ou transbordar se o
+ *      sensor falhar).
+ *
+ *  LIGAÇÕES (pode mudar os pinos abaixo, se quiser)
+ *  ------------------------------------------------
+ *    Botão            -&gt; pino 2 e GND  (usa o resistor interno, sem resistor externo)
+ *    Sensor de chuva  -&gt; saída DO no pino 3, VCC no 5V, GND no GND
+ *    Relé bomba ALTA  -&gt; IN no pino 7
+ *    Relé SUBMERSA    -&gt; IN no pino 8
+ *    LED de status    -&gt; LED da própria placa (pino 13)
+ * ==========================================================================
+ */
+
+// ----------------------------- PINOS -------------------------------------
+const int PINO_BOTAO          = 2;   // Botão de início (outro lado no GND)
+const int PINO_SENSOR_CHUVA   = 3;   // Saída digital (DO) do sensor de chuva
+const int PINO_RELE_ALTA      = 7;   // Relé da bomba de alta pressão (12V)
+const int PINO_RELE_SUBMERSA  = 8;   // Relé da bomba submersa (5V)
+const int PINO_LED            = 13;  // LED da placa: aceso = ciclo rodando
+
+// --------------------------- CONFIGURAÇÕES -------------------------------
+// A maioria dos módulos de relé para Arduino liga com sinal LOW (nível baixo).
+// Se o seu relé ligar com HIGH, troque para:  RELE_LIGADO = HIGH, RELE_DESLIGADO = LOW
+const int RELE_LIGADO    = LOW;
+const int RELE_DESLIGADO = HIGH;
+
+// O sensor de chuva comum (placa + módulo com LM393) manda LOW quando está
+// MOLHADO. Se o seu funcionar ao contrário, troque para HIGH.
+const int SENSOR_MOLHADO = LOW;
+
+// Tempos (em milissegundos: 1000 ms = 1 segundo)
+const unsigned long TEMPO_ANTES_DESLIGAR_ALTA  = 2000UL;    // espera após detectar água, antes de desligar a alta
+const unsigned long TEMPO_ANTES_LIGAR_SUBMERSA = 5000UL;    // espera entre desligar a alta e ligar a submersa (5 s)
+const unsigned long TEMPO_CONFIRMA_SENSOR      = 1000UL;    // sensor precisa ficar estável esse tempo (evita respingos)
+
+// Tempos máximos de segurança (ajuste conforme o tamanho dos reservatórios)
+const unsigned long TEMPO_MAX_BOMBA_ALTA     = 10UL * 60UL * 1000UL;  // 10 minutos
+const unsigned long TEMPO_MAX_BOMBA_SUBMERSA = 10UL * 60UL * 1000UL;  // 10 minutos
+
+const unsigned long TEMPO_DEBOUNCE_BOTAO = 50UL;  // filtro do ruído mecânico do botão
+
+// ------------------------- ESTADOS DO CICLO ------------------------------
+// O programa funciona como uma "máquina de estados": em cada momento ele
+// está em UMA etapa do ciclo e só passa para a próxima quando a condição
+// daquela etapa é cumprida.
+enum Estado {
+  PARADO,                  // esperando o botão
+  IRRIGANDO,               // bomba de alta ligada, esperando o sensor detectar água
+  ESPERANDO_DESLIGAR_ALTA, // água detectada, aguardando para desligar a alta
+  ESPERANDO_SUBMERSA,      // alta desligada, aguardando 5 s para ligar a submersa
+  RETORNANDO_AGUA          // submersa ligada, esperando o sensor secar
+};
+
+Estado estadoAtual = PARADO;
+unsigned long inicioEstado = 0;   // momento (millis) em que entrou no estado atual
+
+// Variáveis do botão (debounce)
+int leituraBotaoAnterior = HIGH;
+int estadoBotaoEstavel   = HIGH;
+unsigned long ultimaMudancaBotao = 0;
+
+// Variáveis do sensor (filtro de estabilidade)
+bool sensorMolhadoEstavel = false;
+bool ultimaLeituraSensor  = false;
+unsigned long ultimaMudancaSensor = 0;
+
+// ======================== FUNÇÕES AUXILIARES =============================
+
+// Liga ou desliga a bomba de alta pressão
+void bombaAlta(bool ligar) {
+  digitalWrite(PINO_RELE_ALTA, ligar ? RELE_LIGADO : RELE_DESLIGADO);
+}
+
+// Liga ou desliga a bomba submersa
+void bombaSubmersa(bool ligar) {
+  digitalWrite(PINO_RELE_SUBMERSA, ligar ? RELE_LIGADO : RELE_DESLIGADO);
+}
+
+// Troca de estado, guarda o horário e mostra no Monitor Serial
+void mudarEstado(Estado novoEstado, const char* mensagem) {
+  estadoAtual  = novoEstado;
+  inicioEstado = millis();
+  Serial.println(mensagem);
+}
+
+// Tempo (ms) desde que entrou no estado atual
+unsigned long tempoNoEstado() {
+  return millis() - inicioEstado;
+}
+
+// Desliga tudo e volta ao estado PARADO
+void pararTudo(const char* motivo) {
+  bombaAlta(false);
+  bombaSubmersa(false);
+  digitalWrite(PINO_LED, LOW);
+  mudarEstado(PARADO, motivo);
+}
+
+// Retorna true UMA vez quando o botão é apertado (já com debounce)
+bool botaoFoiPressionado() {
+  int leitura = digitalRead(PINO_BOTAO);
+  bool pressionou = false;
+
+  if (leitura != leituraBotaoAnterior) {
+    ultimaMudancaBotao = millis();       // houve mudança: reinicia a contagem
+  }
+
+  if (millis() - ultimaMudancaBotao &gt; TEMPO_DEBOUNCE_BOTAO) {
+    if (leitura != estadoBotaoEstavel) {
+      estadoBotaoEstavel = leitura;
+      if (estadoBotaoEstavel == LOW) {   // LOW = apertado (usa INPUT_PULLUP)
+        pressionou = true;
+      }
+    }
+  }
+
+  leituraBotaoAnterior = leitura;
+  return pressionou;
+}
+
+// Atualiza a leitura do sensor: só aceita a mudança se ela ficar
+// estável por TEMPO_CONFIRMA_SENSOR (evita respingos e ruído)
+void atualizarSensor() {
+  bool leitura = (digitalRead(PINO_SENSOR_CHUVA) == SENSOR_MOLHADO);
+
+  if (leitura != ultimaLeituraSensor) {
+    ultimaMudancaSensor = millis();
+    ultimaLeituraSensor = leitura;
+  }
+
+  if (millis() - ultimaMudancaSensor &gt;= TEMPO_CONFIRMA_SENSOR) {
+    sensorMolhadoEstavel = leitura;
+  }
+}
+
+// ============================== SETUP ====================================
+void setup() {
+  Serial.begin(9600);
+
+  // Primeiro coloca os relés em "desligado" e só depois define como saída,
+  // assim as bombas não dão um pulso ao ligar o Arduino.
+  digitalWrite(PINO_RELE_ALTA, RELE_DESLIGADO);
+  digitalWrite(PINO_RELE_SUBMERSA, RELE_DESLIGADO);
+  pinMode(PINO_RELE_ALTA, OUTPUT);
+  pinMode(PINO_RELE_SUBMERSA, OUTPUT);
+
+  pinMode(PINO_BOTAO, INPUT_PULLUP);   // resistor interno: solto = HIGH, apertado = LOW
+  pinMode(PINO_SENSOR_CHUVA, INPUT);
+  pinMode(PINO_LED, OUTPUT);
+  digitalWrite(PINO_LED, LOW);
+
+  Serial.println("Sistema pronto. Aperte o botao para iniciar o ciclo.");
+}
+
+// =============================== LOOP ====================================
+void loop() {
+  atualizarSensor();
+  bool apertou = botaoFoiPressionado();
+
+  // Parada de emergência: botão apertado com o ciclo em andamento
+  if (apertou &amp;&amp; estadoAtual != PARADO) {
+    pararTudo("Botao pressionado durante o ciclo: PARADA DE EMERGENCIA.");
+    return;
+  }
+
+  switch (estadoAtual) {
+
+    // ---------------------------------------------------------------
+    case PARADO:
+      // Só começa quando o botão for apertado
+      if (apertou) {
+        digitalWrite(PINO_LED, HIGH);
+        bombaAlta(true);
+        mudarEstado(IRRIGANDO, "Ciclo iniciado: bomba de ALTA ligada (irrigando).");
+      }
+      break;
+
+    // ---------------------------------------------------------------
+    case IRRIGANDO:
+      // Espera a água chegar no reservatório do meio
+      if (sensorMolhadoEstavel) {
+        mudarEstado(ESPERANDO_DESLIGAR_ALTA, "Agua detectada no reservatorio do meio. Aguardando para desligar a ALTA...");
+      }
+      // Segurança: bomba de alta ligada tempo demais
+      else if (tempoNoEstado() &gt; TEMPO_MAX_BOMBA_ALTA) {
+        pararTudo("ERRO: tempo maximo da bomba de ALTA atingido. Verifique o sensor/reservatorio.");
+      }
+      break;
+
+    // ---------------------------------------------------------------
+    case ESPERANDO_DESLIGAR_ALTA:
+      if (tempoNoEstado() &gt;= TEMPO_ANTES_DESLIGAR_ALTA) {
+        bombaAlta(false);
+        mudarEstado(ESPERANDO_SUBMERSA, "Bomba de ALTA desligada. Aguardando 5 s para ligar a SUBMERSA...");
+      }
+      break;
+
+    // ---------------------------------------------------------------
+    case ESPERANDO_SUBMERSA:
+      if (tempoNoEstado() &gt;= TEMPO_ANTES_LIGAR_SUBMERSA) {
+        bombaSubmersa(true);
+        mudarEstado(RETORNANDO_AGUA, "Bomba SUBMERSA ligada: devolvendo agua para o reservatorio de alta.");
+      }
+      break;
+
+    // ---------------------------------------------------------------
+    case RETORNANDO_AGUA:
+      // Desliga quando o sensor não detectar mais água
+      if (!sensorMolhadoEstavel) {
+        bombaSubmersa(false);
+        digitalWrite(PINO_LED, LOW);
+        mudarEstado(PARADO, "Sensor seco: bomba SUBMERSA desligada. CICLO COMPLETO. Aperte o botao para novo ciclo.");
+      }
+      // Segurança: submersa ligada tempo demais (evita queimar a seco)
+      else if (tempoNoEstado() &gt; TEMPO_MAX_BOMBA_SUBMERSA) {
+        pararTudo("ERRO: tempo maximo da bomba SUBMERSA atingido. Verifique o sensor.");
+      }
+      break;
+  }
+}
+</pre>
+  </section>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('copy-code');
+  var pre = document.getElementById('code');
+  btn.addEventListener('click', function () {
+    var text = pre.textContent;
+    function selectFallback() {
+      var r = document.createRange(); r.selectNodeContents(pre);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      btn.textContent = 'Selecionado: use Ctrl+C';
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'Copiado';
+        setTimeout(function () { btn.textContent = 'Copiar código'; }, 2000);
+      }, selectFallback);
+    } catch (e) { selectFallback(); }
+  });
+})();
+</script>
+</body>
+</html>
