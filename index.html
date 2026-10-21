@@ -1,741 +1,101 @@
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Irrigação da Horta</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
-</head>
-<body>
-  
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Horta • Água em ciclo</title><link rel="icon" href="data:,">
 <style>
-/* Layout: coluna de leitura estreita; o diagrama de ligação ocupa a largura toda e rola de lado no celular. */
-:root {
-  --bg: #f3f6f2;
-  --surface: #ffffff;
-  --fg: #1b2620;
-  --muted: #5a6b61;
-  --line: #d6e0d8;
-  --accent: #b5651d;          /* cobre, como fio de cobre */
-  --accent-soft: #f6e7d8;
-  --board: #17607a;
-  --on-board: #ffffff;
-  --header: #0e3a4a;
-  --module: #234a8a;
-  --part: #e9eeea;
-  --part-stroke: #8a9a90;
-  --metal: #b9c2c7;
-  --relay: #3b82c4;
-  --w5v: #d22f2f;
-  --wgnd: #26302b;
-  --wd2: #d9a400;
-  --wd3: #2b7bd6;
-  --wd7: #e0701b;
-  --wd8: #8a4fd1;
-  --wsig: #7c8a82;
-  --ok: #2e7d4f;
-  --warn: #a35c00;
-  --warn-bg: #fff3e0;
-  --code-bg: #1d2421;
-  --code-fg: #e4ece6;
-  --f-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
-  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
-  --f-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #121815; --surface: #1a221e; --fg: #e3ebe5; --muted: #9aaba1; --line: #2c3832;
-    --accent: #e0914a; --accent-soft: #3a2a1c;
-    --board: #1d6f8c; --header: #0b2c38; --module: #2c5aa6;
-    --part: #26302b; --part-stroke: #7d8d84; --metal: #8d979c; --relay: #5b9fdc;
-    --w5v: #ff5c5c; --wgnd: #c9d3cd; --wd2: #f2c230; --wd3: #5aa2ff; --wd7: #ff9447; --wd8: #b388ff; --wsig: #93a29a;
-    --ok: #5cc08a; --warn: #ffb35c; --warn-bg: #33270f;
-    --code-bg: #0c100e; --code-fg: #e4ece6;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #121815; --surface: #1a221e; --fg: #e3ebe5; --muted: #9aaba1; --line: #2c3832;
-  --accent: #e0914a; --accent-soft: #3a2a1c;
-  --board: #1d6f8c; --header: #0b2c38; --module: #2c5aa6;
-  --part: #26302b; --part-stroke: #7d8d84; --metal: #8d979c; --relay: #5b9fdc;
-  --w5v: #ff5c5c; --wgnd: #c9d3cd; --wd2: #f2c230; --wd3: #5aa2ff; --wd7: #ff9447; --wd8: #b388ff; --wsig: #93a29a;
-  --ok: #5cc08a; --warn: #ffb35c; --warn-bg: #33270f;
-  --code-bg: #0c100e; --code-fg: #e4ece6;
-  color-scheme: dark;
-}
-
-* { box-sizing: border-box; }
-body {
-  background: var(--bg); color: var(--fg);
-  font-family: var(--f-body); font-size: 17px; line-height: 1.6;
-  padding-inline: 16px; padding-block: 0 64px;
-}
-.wrap { max-width: 760px; margin: 0 auto; }
-.wide { max-width: 1040px; margin: 0 auto; }
-h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.15; }
-h1 { font-size: clamp(2rem, 6vw, 3.1rem); font-weight: 800; margin: 0; letter-spacing: -0.01em; }
-h2 { font-size: 1.7rem; font-weight: 800; margin: 0 0 12px; }
-h3 { font-size: 1.15rem; font-weight: 600; margin: 0 0 6px; }
-p { margin: 0 0 12px; }
-a { color: var(--accent); }
-code, kbd { font-family: var(--f-mono); font-size: 0.86em; }
-code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
-kbd { border: 1px solid var(--line); border-bottom-width: 2px; padding: 1px 6px; border-radius: 4px; background: var(--surface); }
-
-header.top { padding-block: 48px 28px; }
-.eyebrow { font-family: var(--f-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
-.lead { color: var(--muted); font-size: 1.1rem; max-width: 60ch; margin-top: 14px; }
-
-nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
-nav.toc a { text-decoration: none; color: var(--fg); border: 1px solid var(--line); background: var(--surface); padding: 6px 12px; border-radius: 999px; font-size: 0.92rem; }
-nav.toc a:hover, nav.toc a:focus-visible { border-color: var(--accent); outline: none; }
-
-section { padding-block: 36px 8px; border-top: 1px solid var(--line); margin-top: 28px; }
-
-.diagram-box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; overflow-x: auto; }
-.diagram-box svg { display: block; min-width: 760px; width: 100%; height: auto; }
-.caption { color: var(--muted); font-size: 0.92rem; margin-top: 10px; }
-
-/* SVG */
-.board { fill: var(--board); }
-.header { fill: var(--header); }
-.chip { fill: var(--header); }
-.metal { fill: var(--metal); }
-.on-board { fill: var(--on-board); font-family: var(--f-mono); font-size: 13px; }
-.board-title { fill: var(--on-board); font-family: var(--f-display); font-weight: 800; font-size: 22px; }
-.pin { fill: var(--metal); stroke: var(--header); stroke-width: 2; }
-.module { fill: var(--module); }
-.mod-text { fill: #ffffff; font-family: var(--f-mono); font-size: 12px; }
-.part { fill: var(--part); stroke: var(--part-stroke); stroke-width: 1.5; }
-.cap { fill: var(--w5v); stroke: var(--part-stroke); stroke-width: 1.5; }
-.relaycube { fill: var(--relay); }
-.pot { fill: var(--metal); }
-.plate { fill: #1f5130; }
-.trace { stroke: #e2c26b; stroke-width: 3; fill: none; }
-.lbl { fill: var(--fg); font-family: var(--f-body); font-size: 14px; font-weight: 700; }
-.sub { fill: var(--muted); font-family: var(--f-body); font-size: 12px; }
-.part-text { fill: var(--fg); font-family: var(--f-body); font-size: 13px; font-weight: 700; }
-.pol { fill: var(--fg); font-family: var(--f-mono); font-size: 13px; font-weight: 600; }
-.w { fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
-.w5v { stroke: var(--w5v); } .wgnd { stroke: var(--wgnd); }
-.wd2 { stroke: var(--wd2); } .wd3 { stroke: var(--wd3); }
-.wd7 { stroke: var(--wd7); } .wd8 { stroke: var(--wd8); }
-.wsig { stroke: var(--wsig); }
-.dot5 { fill: var(--w5v); } .dotg { fill: var(--wgnd); }
-
-/* Tabela de ligações */
-.table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
-table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
-th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
-th { font-family: var(--f-mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-tr:last-child td { border-bottom: 0; }
-.sw { display: inline-block; width: 22px; height: 6px; border-radius: 3px; vertical-align: middle; margin-right: 8px; }
-
-/* Passos */
-ol.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; display: grid; gap: 18px; }
-ol.steps > li { counter-increment: s; display: grid; grid-template-columns: 38px 1fr; gap: 14px; }
-ol.steps > li::before {
-  content: counter(s); font-family: var(--f-display); font-weight: 800; font-size: 1.05rem;
-  width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
-  background: var(--accent-soft); color: var(--accent);
-}
-ol.steps > li > div { min-width: 0; }
-ol.steps ul { margin: 6px 0 0; padding-left: 20px; }
-
-.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 24px; padding-left: 20px; margin: 0; }
-.parts li { margin-bottom: 4px; }
-
-.note { border-left: 4px solid var(--warn); background: var(--warn-bg); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
-.note strong { color: var(--warn); }
-.good { border-left-color: var(--ok); }
-.good strong { color: var(--ok); }
-
-pre { background: var(--code-bg); color: var(--code-fg); font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.55; padding: 14px 16px; border-radius: 8px; overflow-x: auto; margin: 10px 0 0; }
-.code-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
-button.copy { font: inherit; font-size: 0.9rem; font-weight: 700; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
-button.copy:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
-details { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px 16px; margin-top: 12px; }
-summary { cursor: pointer; font-weight: 700; }
-.mono { font-family: var(--f-mono); }
-
-@media (max-width: 520px) {
-  body { font-size: 16px; }
-  ol.steps > li { grid-template-columns: 30px 1fr; gap: 10px; }
-  ol.steps > li::before { width: 30px; height: 30px; font-size: 0.9rem; }
-}
-@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
-</style>
-
-<div class="wrap">
-  <header class="top">
-    <div class="eyebrow">Arduino UNO · Projeto da horta</div>
-    <h1>Irrigação da Horta</h1>
-    <p class="lead">Como ligar os fios, gravar o código no Arduino e testar cada parte antes de colocar água nas bombas.</p>
-    <nav class="toc" aria-label="Seções">
-      <a href="#material">Material</a>
-      <a href="#ligacao">Ligação</a>
-      <a href="#instalar">Instalar e gravar</a>
-      <a href="#testar">Testar</a>
-      <a href="#problemas">Problemas comuns</a>
-      <a href="#codigo">Código</a>
-    </nav>
-  </header>
-
-  <section id="material">
-    <h2>Material</h2>
-    <ul class="parts">
-      <li>1 Arduino UNO + cabo USB</li>
-      <li>1 módulo relé de <strong>2 canais</strong>, bobina 5V</li>
-      <li>1 sensor de chuva (placa + módulo LM393)</li>
-      <li>1 botão (push button)</li>
-      <li>1 bomba de alta pressão 12V</li>
-      <li>1 bomba submersa 5V</li>
-      <li>1 fonte 12V (corrente acima da bomba)</li>
-      <li>1 fonte 5V separada para a submersa</li>
-      <li>Fios jumper macho-fêmea e macho-macho</li>
-      <li>Protoboard (opcional, ajuda nos testes)</li>
-    </ul>
-    <div class="note">
-      <strong>Sobre os relés de 5V e 12V.</strong> O "5V" de um relé é a tensão da bobina, que é o lado que o Arduino comanda. Os dois relés devem ter bobina de 5V. Quem define se ele liga 5V ou 12V é o que você coloca nos contatos (COM e NO). Um módulo de 2 canais resolve as duas bombas de uma vez. Um relé com bobina de 12V não funciona direto no Arduino.
-    </div>
-  </section>
-</div>
-
-<section id="ligacao" class="wide">
-  <div class="wrap" style="padding:0">
-    <h2>Diagrama de ligação</h2>
-    <p>Cada cor de fio corresponde a uma ligação da tabela logo abaixo. Faça as ligações com o Arduino desconectado do USB e das fontes.</p>
-  </div>
-  <div class="diagram-box">
-    <svg viewBox="0 0 1000 660" role="img" aria-label="Diagrama de ligação: Arduino UNO ligado ao botão, ao sensor de chuva e ao módulo relé de dois canais, que comanda a bomba de alta pressão 12V e a bomba submersa 5V">
-      <!-- Arduino -->
-      <rect x="40" y="40" width="240" height="580" rx="12" class="board"/>
-      <rect x="20" y="90" width="44" height="64" rx="4" class="metal"/>
-      <text x="74" y="127" class="on-board">USB</text>
-      <rect x="20" y="500" width="44" height="70" rx="6" class="header"/>
-      <text x="74" y="539" class="on-board">Fonte</text>
-      <rect x="120" y="330" width="80" height="190" rx="4" class="chip"/>
-      <text x="160" y="425" class="on-board" text-anchor="middle" transform="rotate(-90 160 425)">ATmega328P</text>
-      <text x="150" y="250" class="board-title" text-anchor="middle">Arduino</text>
-      <text x="150" y="276" class="board-title" text-anchor="middle">UNO</text>
-      <rect x="258" y="60" width="22" height="500" rx="3" class="header"/>
-      <g>
-        <text x="250" y="85" class="on-board" text-anchor="end">5V</text>
-        <text x="250" y="115" class="on-board" text-anchor="end">GND</text>
-        <text x="250" y="175" class="on-board" text-anchor="end">D2</text>
-        <text x="250" y="320" class="on-board" text-anchor="end">D3</text>
-        <text x="250" y="495" class="on-board" text-anchor="end">D7</text>
-        <text x="250" y="535" class="on-board" text-anchor="end">D8</text>
-      </g>
-
-      <!-- Trilhas 5V e GND -->
-      <path class="w w5v" d="M280 80 H330 V415"/>
-      <path class="w wgnd" d="M280 110 H350 V440"/>
-      <text x="324" y="462" class="sub" text-anchor="end">5V</text>
-      <text x="356" y="462" class="sub">GND</text>
-
-      <!-- Botão -->
-      <path class="w wd2" d="M280 170 H440"/>
-      <path class="w wgnd" d="M440 200 H350"/>
-      <rect x="440" y="150" width="100" height="70" rx="6" class="part"/>
-      <circle cx="502" cy="185" r="18" class="cap"/>
-      <text x="490" y="240" class="lbl" text-anchor="middle">Botão</text>
-
-      <!-- Sensor de chuva -->
-      <path class="w w5v" d="M440 265 H330"/>
-      <path class="w wgnd" d="M440 290 H350"/>
-      <path class="w wd3" d="M280 315 H440"/>
-      <text x="432" y="344" class="sub" text-anchor="end">AO livre</text>
-      <rect x="440" y="250" width="160" height="105" rx="6" class="module"/>
-      <text x="450" y="269" class="mod-text">VCC</text>
-      <text x="450" y="294" class="mod-text">GND</text>
-      <text x="450" y="319" class="mod-text">DO</text>
-      <text x="450" y="344" class="mod-text">AO</text>
-      <circle cx="565" cy="275" r="11" class="pot"/>
-      <text x="565" y="300" class="mod-text" text-anchor="middle">ajuste</text>
-      <text x="520" y="376" class="lbl" text-anchor="middle">Módulo LM393</text>
-      <path class="w wsig" d="M600 290 H680"/>
-      <path class="w wsig" d="M600 315 H680"/>
-      <rect x="680" y="255" width="180" height="95" rx="4" class="plate"/>
-      <path class="trace" d="M690 268 H850 M700 280 H860 M690 292 H850 M700 304 H860 M690 316 H850 M700 328 H860 M690 340 H850"/>
-      <text x="770" y="226" class="lbl" text-anchor="middle">Placa do sensor de chuva</text>
-      <text x="770" y="244" class="sub" text-anchor="middle">no reservatório do meio, na altura do nível</text>
-
-      <!-- Módulo relé -->
-      <path class="w w5v" d="M440 415 H330"/>
-      <path class="w wgnd" d="M440 440 H350"/>
-      <path class="w wd7" d="M280 490 H440"/>
-      <path class="w wd8" d="M280 530 H440"/>
-      <rect x="440" y="400" width="200" height="212" rx="6" class="module"/>
-      <text x="450" y="419" class="mod-text">VCC</text>
-      <text x="450" y="444" class="mod-text">GND</text>
-      <text x="450" y="494" class="mod-text">IN1</text>
-      <text x="450" y="534" class="mod-text">IN2</text>
-      <rect x="500" y="412" width="78" height="66" rx="4" class="relaycube"/>
-      <text x="539" y="450" class="mod-text" text-anchor="middle">K1</text>
-      <rect x="500" y="528" width="78" height="66" rx="4" class="relaycube"/>
-      <text x="539" y="566" class="mod-text" text-anchor="middle">K2</text>
-      <text x="622" y="424" class="mod-text" text-anchor="end">NO</text>
-      <text x="622" y="444" class="mod-text" text-anchor="end">COM</text>
-      <text x="622" y="464" class="mod-text" text-anchor="end">NC</text>
-      <text x="622" y="544" class="mod-text" text-anchor="end">NO</text>
-      <text x="622" y="564" class="mod-text" text-anchor="end">COM</text>
-      <text x="622" y="584" class="mod-text" text-anchor="end">NC</text>
-      <text x="540" y="636" class="lbl" text-anchor="middle">Módulo relé 2 canais (bobina 5V)</text>
-
-      <!-- Canal 1: bomba de alta 12V -->
-      <path class="w w5v" d="M640 420 H720 V400 H760"/>
-      <path class="w w5v" d="M640 440 H700 V470 H760"/>
-      <path class="w wgnd" d="M920 400 H970 V470 H920"/>
-      <rect x="760" y="380" width="160" height="40" rx="6" class="part"/>
-      <text x="840" y="405" class="part-text" text-anchor="middle">Bomba ALTA 12V</text>
-      <rect x="760" y="450" width="160" height="40" rx="6" class="part"/>
-      <text x="840" y="475" class="part-text" text-anchor="middle">Fonte 12V</text>
-      <text x="768" y="377" class="pol">+</text><text x="906" y="377" class="pol">−</text>
-      <text x="768" y="506" class="pol">+</text><text x="906" y="506" class="pol">−</text>
-
-      <!-- Canal 2: bomba submersa 5V -->
-      <path class="w w5v" d="M640 540 H720 V520 H760"/>
-      <path class="w w5v" d="M640 560 H700 V590 H760"/>
-      <path class="w wgnd" d="M920 520 H970 V590 H920"/>
-      <rect x="760" y="500" width="160" height="40" rx="6" class="part"/>
-      <text x="840" y="525" class="part-text" text-anchor="middle">Bomba SUBMERSA 5V</text>
-      <rect x="760" y="570" width="160" height="40" rx="6" class="part"/>
-      <text x="840" y="595" class="part-text" text-anchor="middle">Fonte 5V</text>
-      <text x="906" y="626" class="pol">−</text><text x="768" y="626" class="pol">+</text>
-
-      <!-- Pontos de ligação -->
-      <circle cx="330" cy="80" r="6" class="dot5"/>
-      <circle cx="330" cy="265" r="6" class="dot5"/>
-      <circle cx="330" cy="415" r="6" class="dot5"/>
-      <circle cx="350" cy="110" r="6" class="dotg"/>
-      <circle cx="350" cy="200" r="6" class="dotg"/>
-      <circle cx="350" cy="290" r="6" class="dotg"/>
-      <circle cx="350" cy="440" r="6" class="dotg"/>
-      <g>
-        <circle cx="280" cy="80" r="5" class="pin"/><circle cx="280" cy="110" r="5" class="pin"/>
-        <circle cx="280" cy="170" r="5" class="pin"/><circle cx="280" cy="315" r="5" class="pin"/>
-        <circle cx="280" cy="490" r="5" class="pin"/><circle cx="280" cy="530" r="5" class="pin"/>
-      </g>
-    </svg>
-  </div>
-  <p class="caption wrap" style="padding:0">Ponto cheio = fios ligados. Fios que se cruzam sem ponto não se tocam. As trilhas verticais de 5V e GND podem ser as linhas da protoboard.</p>
-
-  <div class="wrap" style="padding:0; margin-top:24px">
-    <h3>Tabela de ligações</h3>
-    <div class="table-scroll">
-      <table>
-        <thead><tr><th>Fio</th><th>De</th><th>Para</th></tr></thead>
-        <tbody>
-          <tr><td><span class="sw" style="background:var(--w5v)"></span>5V</td><td>Arduino 5V</td><td>VCC do sensor e VCC do módulo relé</td></tr>
-          <tr><td><span class="sw" style="background:var(--wgnd)"></span>GND</td><td>Arduino GND</td><td>Botão, GND do sensor e GND do módulo relé</td></tr>
-          <tr><td><span class="sw" style="background:var(--wd2)"></span>D2</td><td>Arduino pino 2</td><td>Outro terminal do botão</td></tr>
-          <tr><td><span class="sw" style="background:var(--wd3)"></span>D3</td><td>Arduino pino 3</td><td>DO do módulo do sensor</td></tr>
-          <tr><td><span class="sw" style="background:var(--wd7)"></span>D7</td><td>Arduino pino 7</td><td>IN1 do relé, bomba de ALTA</td></tr>
-          <tr><td><span class="sw" style="background:var(--wd8)"></span>D8</td><td>Arduino pino 8</td><td>IN2 do relé, bomba SUBMERSA</td></tr>
-          <tr><td><span class="sw" style="background:var(--w5v)"></span>K1</td><td>Fonte 12V (+) → COM1<br>NO1 → bomba alta (+)</td><td>Bomba alta (−) → Fonte 12V (−)</td></tr>
-          <tr><td><span class="sw" style="background:var(--w5v)"></span>K2</td><td>Fonte 5V (+) → COM2<br>NO2 → bomba submersa (+)</td><td>Bomba submersa (−) → Fonte 5V (−)</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="note">
-      <strong>Cuidados na ligação.</strong>
-      Use sempre o terminal <b>NO</b> (normalmente aberto), assim a bomba fica desligada se o Arduino estiver sem energia. O NC fica sem ligar.
-      As bombas nunca ligam no 5V do Arduino, cada uma tem a sua fonte. Como o relé separa os circuitos, as fontes das bombas <b>não</b> precisam ser ligadas no GND do Arduino. Isso corrige o que eu disse antes.
-      Botão de 4 pernas: use duas pernas em diagonal, que é o jeito certo de garantir que ele abre e fecha.
-      A placa do sensor vai na água, mas o módulo LM393 precisa ficar seco, fora do reservatório.
-    </div>
-  </div>
-</section>
-
-<div class="wrap">
-  <section id="instalar">
-    <h2>Instalar e gravar no Arduino</h2>
-    <div class="note good"><strong>Não precisa de nenhuma biblioteca.</strong> O código usa só funções que já vêm no Arduino. Pode pular a parte do "Gerenciador de Bibliotecas".</div>
-    <ol class="steps">
-      <li><div>
-        <h3>Instale a Arduino IDE</h3>
-        <p>Baixe em <a href="https://www.arduino.cc/en/software" target="_blank" rel="noopener">arduino.cc/en/software</a> a versão 2.x para o seu sistema (Windows, macOS ou Linux) e instale normalmente. No Mac, arraste para a pasta Aplicativos.</p>
-      </div></li>
-      <li><div>
-        <h3>Abra o código</h3>
-        <p>Na IDE, vá em <kbd>Arquivo</kbd> → <kbd>Abrir</kbd> e escolha <code>IrrigacaoHorta/IrrigacaoHorta.ino</code>. O arquivo precisa ficar dentro de uma pasta com o mesmo nome (<code>IrrigacaoHorta</code>), senão a IDE pede para criar uma.</p>
-        <p>Se você tem só o código, crie um sketch novo (<kbd>Arquivo</kbd> → <kbd>Novo</kbd>), apague tudo, cole o código da seção <a href="#codigo">Código</a> e salve com o nome <code>IrrigacaoHorta</code>.</p>
-      </div></li>
-      <li><div>
-        <h3>Conecte o Arduino e escolha a placa</h3>
-        <p>Ligue o Arduino no USB. Em <kbd>Ferramentas</kbd> → <kbd>Placa</kbd> → <kbd>Arduino AVR Boards</kbd>, escolha <b>Arduino Uno</b>.</p>
-      </div></li>
-      <li><div>
-        <h3>Escolha a porta</h3>
-        <p>Em <kbd>Ferramentas</kbd> → <kbd>Porta</kbd>, escolha a que aparece quando o Arduino está ligado:</p>
-        <ul>
-          <li>Windows: <code>COM3</code>, <code>COM4</code>…</li>
-          <li>Mac: <code>/dev/cu.usbmodem…</code> ou <code>/dev/cu.usbserial…</code></li>
-        </ul>
-        <p>Se nenhuma porta aparecer, veja <a href="#problemas">Problemas comuns</a>. Placas genéricas com chip CH340 às vezes precisam de driver.</p>
-      </div></li>
-      <li><div>
-        <h3>Verifique e grave</h3>
-        <p>Clique em <b>✓ Verificar</b>. Deve terminar sem erros. Depois clique em <b>→ Carregar</b>. Os LEDs TX/RX da placa piscam e no fim aparece <i>"Carregamento concluído"</i>.</p>
-      </div></li>
-      <li><div>
-        <h3>Abra o Monitor Serial</h3>
-        <p>Clique na lupa no canto superior direito (ou <kbd>Ferramentas</kbd> → <kbd>Monitor Serial</kbd>) e selecione <b>9600 baud</b>. Deve aparecer:</p>
-        <pre>Sistema pronto. Aperte o botao para iniciar o ciclo.</pre>
-      </div></li>
-    </ol>
-  </section>
-
-  <section id="testar">
-    <h2>Testar por partes</h2>
-    <p>Teste nesta ordem. Nos testes 1 a 4 as fontes das bombas ficam <b>desligadas</b>: dá para ver tudo pelos LEDs e pelo clique dos relés, sem risco de queimar bomba a seco.</p>
-    <div class="note"><strong>Dica para os testes.</strong> No começo do código, troque os tempos máximos de 10 minutos para 1 minuto (<code>1UL * 60UL * 1000UL</code>). Assim você testa a proteção sem esperar muito. Depois volte ao valor normal.</div>
-    <ol class="steps">
-      <li><div>
-        <h3>Botão</h3>
-        <p>Só o Arduino no USB e o botão ligado. Aperte o botão: o LED da placa (L) acende e o Monitor Serial mostra <code>Ciclo iniciado</code>. Aperte de novo: aparece <code>PARADA DE EMERGENCIA</code> e o LED apaga.</p>
-      </div></li>
-      <li><div>
-        <h3>Relés</h3>
-        <p>Ligue o módulo relé (sem as bombas). Ao ligar o Arduino, os dois relés precisam ficar <b>desligados</b>. Aperte o botão: o K1 (bomba de alta) dá um clique e o LED dele acende.</p>
-        <p>Se os relés ligarem sozinhos assim que o Arduino liga, o seu módulo funciona ao contrário. Veja a seção de problemas.</p>
-      </div></li>
-      <li><div>
-        <h3>Sensor de chuva</h3>
-        <p>Ligue o sensor. Encoste um pano úmido ou pingue água na placa: o LED de sinal do módulo LM393 acende. Seque com papel toalha e ele apaga. Se não reagir, gire o parafuso azul (ajuste) aos poucos até o LED acender só quando está molhado.</p>
-      </div></li>
-      <li><div>
-        <h3>Ciclo completo, sem água</h3>
-        <p>Aperte o botão e molhe a placa do sensor. A sequência no Monitor Serial deve ser:</p>
-        <pre>Ciclo iniciado: bomba de ALTA ligada (irrigando).
-Agua detectada no reservatorio do meio. Aguardando para desligar a ALTA...
-Bomba de ALTA desligada. Aguardando 5 s para ligar a SUBMERSA...
-Bomba SUBMERSA ligada: devolvendo agua para o reservatorio de alta.
-Sensor seco: bomba SUBMERSA desligada. CICLO COMPLETO. Aperte o botao para novo ciclo.</pre>
-        <p>A última linha só aparece depois que você seca a placa. Entre as mensagens, confira o K1 desligar e, uns 5 segundos depois, o K2 ligar.</p>
-      </div></li>
-      <li><div>
-        <h3>Com bombas e água</h3>
-        <p>Agora ligue as fontes e coloque as bombas na água. Rode um ciclo inteiro olhando de perto, com a mão perto do botão para parar se precisar. Confira se a submersa desliga a tempo, sem secar o reservatório do meio.</p>
-        <p>A placa do sensor de chuva demora para secar. Se a submersa continuar ligando depois que a água baixou, troque o sensor por uma <b>boia de nível</b>, que liga nos mesmos pinos (D3 e GND) sem mudar o código. Para a boia, use <code>SENSOR_MOLHADO = LOW</code> e ative o resistor interno trocando <code>INPUT</code> por <code>INPUT_PULLUP</code> na linha do sensor.</p>
-      </div></li>
-    </ol>
-  </section>
-
-  <section id="problemas">
-    <h2>Problemas comuns</h2>
-    <div class="table-scroll">
-      <table>
-        <thead><tr><th>O que acontece</th><th>Como resolver</th></tr></thead>
-        <tbody>
-          <tr><td>Nenhuma porta aparece na IDE</td><td>Troque o cabo USB (alguns só carregam e não passam dados). Placa genérica com CH340: instale o driver CH340 e reinicie a IDE.</td></tr>
-          <tr><td>Erro <span class="mono">avrdude: stk500_recv()</span> ao carregar</td><td>Porta ou placa errada em Ferramentas. Confira se escolheu Arduino Uno e a porta certa.</td></tr>
-          <tr><td>Os relés ligam sozinhos quando o Arduino liga</td><td>Seu módulo liga com HIGH. No código, troque para <code>RELE_LIGADO = HIGH</code> e <code>RELE_DESLIGADO = LOW</code>.</td></tr>
-          <tr><td>O ciclo pula direto para "Agua detectada" com o sensor seco</td><td>O sensor funciona ao contrário. Troque <code>SENSOR_MOLHADO</code> para <code>HIGH</code>, ou ajuste o parafuso do módulo.</td></tr>
-          <tr><td>O botão não faz nada</td><td>Botão de 4 pernas ligado com as duas pernas do mesmo lado. Use pernas em diagonal.</td></tr>
-          <tr><td>O Arduino reinicia quando a bomba liga</td><td>A bomba está puxando energia do Arduino. Cada bomba precisa da sua própria fonte, ligada só no relé.</td></tr>
-          <tr><td>Aparece "ERRO: tempo maximo"</td><td>A bomba ficou ligada mais que o limite. Verifique se o sensor está na altura certa e bem ligado, ou aumente o tempo máximo se os reservatórios forem grandes.</td></tr>
-          <tr><td>Monitor Serial mostra símbolos estranhos</td><td>Velocidade errada. Selecione 9600 baud.</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <details>
-      <summary>Onde mudar os tempos</summary>
-      <p style="margin-top:10px">No começo do código, na parte de configurações:</p>
-      <ul>
-        <li><code>TEMPO_ANTES_DESLIGAR_ALTA</code>: espera depois que o sensor detecta água (2 s)</li>
-        <li><code>TEMPO_ANTES_LIGAR_SUBMERSA</code>: espera entre desligar a alta e ligar a submersa (5 s)</li>
-        <li><code>TEMPO_CONFIRMA_SENSOR</code>: quanto tempo o sensor precisa ficar molhado/seco para valer (1 s)</li>
-        <li><code>TEMPO_MAX_BOMBA_ALTA</code> e <code>TEMPO_MAX_BOMBA_SUBMERSA</code>: limite de segurança (10 min)</li>
-      </ul>
-      <p>Os valores estão em milissegundos: 1000 = 1 segundo.</p>
-    </details>
-  </section>
-
-  <section id="codigo">
-    <h2>Código</h2>
-    <div class="code-head">
-      <p style="margin:0">Arquivo <code>IrrigacaoHorta.ino</code>, completo e comentado.</p>
-      <button class="copy" id="copy-code" type="button">Copiar código</button>
-    </div>
-    <pre id="code">/*
- * ==========================================================================
- *  SISTEMA DE IRRIGAÇÃO DA HORTA COM REAPROVEITAMENTO DE ÁGUA
- *  Placa: Arduino UNO
- * ==========================================================================
- *
- *  COMO O SISTEMA FUNCIONA
- *  -----------------------
- *  Existem três níveis:
- *    1) Reservatório de ALTA  -&gt; tem a água e a BOMBA DE ALTA PRESSÃO (12V),
- *                                que alimenta os sprinklers da horta.
- *    2) Horta                 -&gt; recebe a água dos sprinklers.
- *    3) Reservatório do MEIO  -&gt; recebe a sobra da horta. Nele ficam o
- *                                SENSOR DE CHUVA (nível) e a BOMBA SUBMERSA (5V),
- *                                que devolve a água para o reservatório de alta.
- *
- *  SEQUÊNCIA DO CICLO (só começa ao apertar o botão):
- *    1. Botão pressionado  -&gt; liga a bomba de alta (sprinklers).
- *    2. Sensor detecta água no reservatório do meio
- *                          -&gt; espera TEMPO_ANTES_DESLIGAR_ALTA.
- *    3. Desliga a bomba de alta.
- *    4. Espera TEMPO_ANTES_LIGAR_SUBMERSA (5 segundos).
- *    5. Liga a bomba submersa (devolve a água para o reservatório de alta).
- *    6. Quando o sensor NÃO detecta mais água -&gt; desliga a submersa.
- *    7. Ciclo completo. O sistema fica parado esperando o botão de novo.
- *
- *  SEGURANÇA EXTRA:
- *    - Apertar o botão DURANTE o ciclo desliga tudo (parada de emergência).
- *    - Cada bomba tem um tempo máximo de funcionamento. Se passar disso,
- *      tudo desliga (evita bomba queimar a seco ou transbordar se o
- *      sensor falhar).
- *
- *  LIGAÇÕES (pode mudar os pinos abaixo, se quiser)
- *  ------------------------------------------------
- *    Botão            -&gt; pino 2 e GND  (usa o resistor interno, sem resistor externo)
- *    Sensor de chuva  -&gt; saída DO no pino 3, VCC no 5V, GND no GND
- *    Relé bomba ALTA  -&gt; IN no pino 7
- *    Relé SUBMERSA    -&gt; IN no pino 8
- *    LED de status    -&gt; LED da própria placa (pino 13)
- * ==========================================================================
- */
-
-// ----------------------------- PINOS -------------------------------------
-const int PINO_BOTAO          = 2;   // Botão de início (outro lado no GND)
-const int PINO_SENSOR_CHUVA   = 3;   // Saída digital (DO) do sensor de chuva
-const int PINO_RELE_ALTA      = 7;   // Relé da bomba de alta pressão (12V)
-const int PINO_RELE_SUBMERSA  = 8;   // Relé da bomba submersa (5V)
-const int PINO_LED            = 13;  // LED da placa: aceso = ciclo rodando
-
-// --------------------------- CONFIGURAÇÕES -------------------------------
-// A maioria dos módulos de relé para Arduino liga com sinal LOW (nível baixo).
-// Se o seu relé ligar com HIGH, troque para:  RELE_LIGADO = HIGH, RELE_DESLIGADO = LOW
-const int RELE_LIGADO    = LOW;
-const int RELE_DESLIGADO = HIGH;
-
-// O sensor de chuva comum (placa + módulo com LM393) manda LOW quando está
-// MOLHADO. Se o seu funcionar ao contrário, troque para HIGH.
-const int SENSOR_MOLHADO = LOW;
-
-// Tempos (em milissegundos: 1000 ms = 1 segundo)
-const unsigned long TEMPO_ANTES_DESLIGAR_ALTA  = 2000UL;    // espera após detectar água, antes de desligar a alta
-const unsigned long TEMPO_ANTES_LIGAR_SUBMERSA = 5000UL;    // espera entre desligar a alta e ligar a submersa (5 s)
-const unsigned long TEMPO_CONFIRMA_SENSOR      = 1000UL;    // sensor precisa ficar estável esse tempo (evita respingos)
-
-// Tempos máximos de segurança (ajuste conforme o tamanho dos reservatórios)
-const unsigned long TEMPO_MAX_BOMBA_ALTA     = 10UL * 60UL * 1000UL;  // 10 minutos
-const unsigned long TEMPO_MAX_BOMBA_SUBMERSA = 10UL * 60UL * 1000UL;  // 10 minutos
-
-const unsigned long TEMPO_DEBOUNCE_BOTAO = 50UL;  // filtro do ruído mecânico do botão
-
-// ------------------------- ESTADOS DO CICLO ------------------------------
-// O programa funciona como uma "máquina de estados": em cada momento ele
-// está em UMA etapa do ciclo e só passa para a próxima quando a condição
-// daquela etapa é cumprida.
-enum Estado {
-  PARADO,                  // esperando o botão
-  IRRIGANDO,               // bomba de alta ligada, esperando o sensor detectar água
-  ESPERANDO_DESLIGAR_ALTA, // água detectada, aguardando para desligar a alta
-  ESPERANDO_SUBMERSA,      // alta desligada, aguardando 5 s para ligar a submersa
-  RETORNANDO_AGUA          // submersa ligada, esperando o sensor secar
-};
-
-Estado estadoAtual = PARADO;
-unsigned long inicioEstado = 0;   // momento (millis) em que entrou no estado atual
-
-// Variáveis do botão (debounce)
-int leituraBotaoAnterior = HIGH;
-int estadoBotaoEstavel   = HIGH;
-unsigned long ultimaMudancaBotao = 0;
-
-// Variáveis do sensor (filtro de estabilidade)
-bool sensorMolhadoEstavel = false;
-bool ultimaLeituraSensor  = false;
-unsigned long ultimaMudancaSensor = 0;
-
-// ======================== FUNÇÕES AUXILIARES =============================
-
-// Liga ou desliga a bomba de alta pressão
-void bombaAlta(bool ligar) {
-  digitalWrite(PINO_RELE_ALTA, ligar ? RELE_LIGADO : RELE_DESLIGADO);
-}
-
-// Liga ou desliga a bomba submersa
-void bombaSubmersa(bool ligar) {
-  digitalWrite(PINO_RELE_SUBMERSA, ligar ? RELE_LIGADO : RELE_DESLIGADO);
-}
-
-// Troca de estado, guarda o horário e mostra no Monitor Serial
-void mudarEstado(Estado novoEstado, const char* mensagem) {
-  estadoAtual  = novoEstado;
-  inicioEstado = millis();
-  Serial.println(mensagem);
-}
-
-// Tempo (ms) desde que entrou no estado atual
-unsigned long tempoNoEstado() {
-  return millis() - inicioEstado;
-}
-
-// Desliga tudo e volta ao estado PARADO
-void pararTudo(const char* motivo) {
-  bombaAlta(false);
-  bombaSubmersa(false);
-  digitalWrite(PINO_LED, LOW);
-  mudarEstado(PARADO, motivo);
-}
-
-// Retorna true UMA vez quando o botão é apertado (já com debounce)
-bool botaoFoiPressionado() {
-  int leitura = digitalRead(PINO_BOTAO);
-  bool pressionou = false;
-
-  if (leitura != leituraBotaoAnterior) {
-    ultimaMudancaBotao = millis();       // houve mudança: reinicia a contagem
-  }
-
-  if (millis() - ultimaMudancaBotao &gt; TEMPO_DEBOUNCE_BOTAO) {
-    if (leitura != estadoBotaoEstavel) {
-      estadoBotaoEstavel = leitura;
-      if (estadoBotaoEstavel == LOW) {   // LOW = apertado (usa INPUT_PULLUP)
-        pressionou = true;
-      }
-    }
-  }
-
-  leituraBotaoAnterior = leitura;
-  return pressionou;
-}
-
-// Atualiza a leitura do sensor: só aceita a mudança se ela ficar
-// estável por TEMPO_CONFIRMA_SENSOR (evita respingos e ruído)
-void atualizarSensor() {
-  bool leitura = (digitalRead(PINO_SENSOR_CHUVA) == SENSOR_MOLHADO);
-
-  if (leitura != ultimaLeituraSensor) {
-    ultimaMudancaSensor = millis();
-    ultimaLeituraSensor = leitura;
-  }
-
-  if (millis() - ultimaMudancaSensor &gt;= TEMPO_CONFIRMA_SENSOR) {
-    sensorMolhadoEstavel = leitura;
-  }
-}
-
-// ============================== SETUP ====================================
-void setup() {
-  Serial.begin(9600);
-
-  // Primeiro coloca os relés em "desligado" e só depois define como saída,
-  // assim as bombas não dão um pulso ao ligar o Arduino.
-  digitalWrite(PINO_RELE_ALTA, RELE_DESLIGADO);
-  digitalWrite(PINO_RELE_SUBMERSA, RELE_DESLIGADO);
-  pinMode(PINO_RELE_ALTA, OUTPUT);
-  pinMode(PINO_RELE_SUBMERSA, OUTPUT);
-
-  pinMode(PINO_BOTAO, INPUT_PULLUP);   // resistor interno: solto = HIGH, apertado = LOW
-  pinMode(PINO_SENSOR_CHUVA, INPUT);
-  pinMode(PINO_LED, OUTPUT);
-  digitalWrite(PINO_LED, LOW);
-
-  Serial.println("Sistema pronto. Aperte o botao para iniciar o ciclo.");
-}
-
-// =============================== LOOP ====================================
-void loop() {
-  atualizarSensor();
-  bool apertou = botaoFoiPressionado();
-
-  // Parada de emergência: botão apertado com o ciclo em andamento
-  if (apertou &amp;&amp; estadoAtual != PARADO) {
-    pararTudo("Botao pressionado durante o ciclo: PARADA DE EMERGENCIA.");
-    return;
-  }
-
-  switch (estadoAtual) {
-
-    // ---------------------------------------------------------------
-    case PARADO:
-      // Só começa quando o botão for apertado
-      if (apertou) {
-        digitalWrite(PINO_LED, HIGH);
-        bombaAlta(true);
-        mudarEstado(IRRIGANDO, "Ciclo iniciado: bomba de ALTA ligada (irrigando).");
-      }
-      break;
-
-    // ---------------------------------------------------------------
-    case IRRIGANDO:
-      // Espera a água chegar no reservatório do meio
-      if (sensorMolhadoEstavel) {
-        mudarEstado(ESPERANDO_DESLIGAR_ALTA, "Agua detectada no reservatorio do meio. Aguardando para desligar a ALTA...");
-      }
-      // Segurança: bomba de alta ligada tempo demais
-      else if (tempoNoEstado() &gt; TEMPO_MAX_BOMBA_ALTA) {
-        pararTudo("ERRO: tempo maximo da bomba de ALTA atingido. Verifique o sensor/reservatorio.");
-      }
-      break;
-
-    // ---------------------------------------------------------------
-    case ESPERANDO_DESLIGAR_ALTA:
-      if (tempoNoEstado() &gt;= TEMPO_ANTES_DESLIGAR_ALTA) {
-        bombaAlta(false);
-        mudarEstado(ESPERANDO_SUBMERSA, "Bomba de ALTA desligada. Aguardando 5 s para ligar a SUBMERSA...");
-      }
-      break;
-
-    // ---------------------------------------------------------------
-    case ESPERANDO_SUBMERSA:
-      if (tempoNoEstado() &gt;= TEMPO_ANTES_LIGAR_SUBMERSA) {
-        bombaSubmersa(true);
-        mudarEstado(RETORNANDO_AGUA, "Bomba SUBMERSA ligada: devolvendo agua para o reservatorio de alta.");
-      }
-      break;
-
-    // ---------------------------------------------------------------
-    case RETORNANDO_AGUA:
-      // Desliga quando o sensor não detectar mais água
-      if (!sensorMolhadoEstavel) {
-        bombaSubmersa(false);
-        digitalWrite(PINO_LED, LOW);
-        mudarEstado(PARADO, "Sensor seco: bomba SUBMERSA desligada. CICLO COMPLETO. Aperte o botao para novo ciclo.");
-      }
-      // Segurança: submersa ligada tempo demais (evita queimar a seco)
-      else if (tempoNoEstado() &gt; TEMPO_MAX_BOMBA_SUBMERSA) {
-        pararTudo("ERRO: tempo maximo da bomba SUBMERSA atingido. Verifique o sensor.");
-      }
-      break;
-  }
-}
-</pre>
-  </section>
-</div>
-
+:root{--ink:#173d32;--muted:#62766c;--green:#267951;--paper:#f3f4ec;--line:#dce3d7}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,sans-serif}header{padding:20px 5%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:16px}header b{letter-spacing:2px}small,.muted{color:var(--muted)}nav{display:flex;gap:8px;flex-wrap:wrap}button,a.link{font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:9px 15px;background:#fff;color:var(--ink);text-decoration:none}button:hover{border-color:var(--green)}button:focus-visible,a:focus-visible{outline:3px solid #d5a43b;outline-offset:3px}button:disabled{opacity:.45;cursor:not-allowed}button.active,.primary{background:var(--green);color:white}.danger{color:#a23e31;border-color:#e6b7a8}.badge{display:inline-block;font-size:12px;letter-spacing:1px;padding:5px 10px;border-radius:30px;background:#e4ead9}main{max-width:1250px;margin:auto;padding:36px 5%}h1{font-size:clamp(32px,4vw,56px);line-height:1.12;letter-spacing:-2px;margin:15px 0}h2{line-height:1.25;font-size:26px}h3{font-size:18px}.intro{max-width:650px}.grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(290px,1fr);gap:28px;margin-top:30px}.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;margin-bottom:20px}.card p{margin:8px 0}.eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:12px;font-weight:700}.phone{max-width:355px;margin:auto;border:8px solid #233c33;border-radius:38px;background:#fff;padding:22px;box-shadow:0 18px 40px #243d3212}.notch{width:84px;height:10px;background:#233c33;border-radius:20px;margin:-12px auto 20px}.phone h2{margin:15px 0}.status-row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}.actions{display:flex;gap:9px;margin-top:20px;flex-wrap:wrap}.actions button{flex:1}.notice{border-left:4px solid #c5993b;background:#fcf6e8;padding:14px 18px;margin:18px 0;font-size:14px}.logs{font:13px/1.7 ui-monospace,monospace;max-height:150px;overflow:auto;background:#f4f6f0;padding:12px;border-radius:8px}.hidden{display:none!important}table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;padding:12px;border-bottom:1px solid var(--line)}th{background:#f1f5ec}.scroll{overflow:auto}.step{display:grid;grid-template-columns:34px 1fr;gap:12px;margin:20px 0}.step>b{background:#e9efdf;border-radius:50%;height:32px;text-align:center}.step h3{margin:0}.diagram{width:100%;height:auto;display:block}.water{fill:#78bfd0}.flow{stroke:#389cb8;stroke-width:9;fill:none;stroke-dasharray:13 9;opacity:.16}.flow.on{opacity:1;animation:flow 1s linear infinite}@keyframes flow{to{stroke-dashoffset:-44}}.pump{fill:#b4c3b6}.pump.on{fill:#297a51}.soil{fill:#906a42}.leaf{fill:#4d9859}.metric{font-size:34px;font-weight:650}.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}label{display:inline-flex;gap:6px;align-items:center}.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:20px}.connection{font-size:13px}footer{padding:25px 5%;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}code{background:#edf1e7;padding:2px 5px;border-radius:4px}a{color:var(--green)}@media(max-width:800px){header{align-items:flex-start;flex-direction:column}.grid,.two{grid-template-columns:1fr}main{padding:24px 5%}.card{padding:18px}.phone{width:100%}h1{letter-spacing:-1px}.controls button{flex:1}td,th{padding:9px}}
+
+/* Responsive layout and assembly explorer */
+.grid>div,.two>div,.step>div{min-width:0}button{white-space:normal;overflow-wrap:anywhere;min-height:44px}p,li,code{overflow-wrap:anywhere}.actions{display:grid;grid-template-columns:1fr 1fr}.modal-trigger{display:none}dialog{border:0;border-radius:22px;padding:0;color:var(--ink);background:var(--paper);width:min(760px,94vw);max-height:90dvh;overflow:auto}dialog::backdrop{background:#10271dcc;backdrop-filter:blur(4px)}.modal-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--paper);padding:14px 18px;border-bottom:1px solid var(--line)}.modal-head h2{font-size:20px;margin:0}.modal-body{padding:16px}.modal-body .card:last-child{margin-bottom:0}.pin-layout{display:grid;grid-template-columns:minmax(250px,330px) minmax(0,1fr);gap:30px;align-items:start}.esp-board{background:#17372f;border:4px solid #284f41;border-radius:17px;display:grid;grid-template-columns:66px 1fr 66px;gap:8px;padding:16px 6px 24px;max-width:330px;margin:auto;box-shadow:0 10px 25px #173d3220}.pin-rail{display:flex;flex-direction:column;gap:5px}.pin-rail button,.pin-rail span{font:12px/1.2 ui-monospace,monospace;min-height:30px;display:flex;align-items:center;justify-content:center;padding:5px 2px;border-radius:5px}.pin-rail span{color:#bbcbbf}.pin-rail button{background:#f4e9b9;color:#173d32;border:2px solid #d9bc56;min-height:44px;font-weight:700}.pin-rail button[aria-pressed=true]{background:#f2b73d;border-color:white;box-shadow:0 0 0 2px #f2b73d}.esp-center{color:white;text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px;padding-top:20px}.antenna{height:65px;width:90%;border:5px solid #c4ad69;border-bottom:0;background:repeating-linear-gradient(90deg,transparent 0 12px,#c4ad69 12px 17px)}.chip{background:#b9c2b8;color:#243c32;border:2px solid #e1e5dc;padding:30px 3px;width:100%;font:12px/1.8 ui-monospace,monospace}.usb{margin-top:auto;width:45px;height:35px;background:#aebbb1;border:5px solid #d4dad5;border-radius:3px}.pin-detail{background:#f1f5ec;border:1px solid var(--line);border-radius:16px;padding:22px;position:sticky;top:20px}.pin-detail h3{font-size:25px;margin:8px 0}.wire-route{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:20px 0}.wire-route b{border:1px solid #bad0bc;background:white;padding:10px;border-radius:10px}.demo-box{border-radius:12px;background:white;padding:16px;border:1px solid var(--line);margin-top:16px}.demo-light{display:inline-block;width:13px;height:13px;border-radius:50%;background:#aab8ae;margin-right:7px}.demo-light.on{background:#289059;box-shadow:0 0 0 5px #28905922}.pin-tip{font-size:13px}.modal-open{overflow:hidden}
+@media(max-width:800px){header{padding:16px 4%;gap:12px}header>b{font-size:14px}nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:6px}nav button{padding:9px 4px;font-size:12px;line-height:1.3;min-height:48px}header .badge{font-size:10px}main{padding:22px 4%}h1{font-size:34px;letter-spacing:-1px}h2{font-size:23px}.intro p{font-size:14px}.grid{display:flex;flex-direction:column;margin-top:20px;gap:0}.phoneColumn{order:-1}.sceneColumn{display:none}.modal-body .sceneColumn{display:block}.modal-trigger{display:block;width:100%;margin-top:14px;background:#edf2e7}.phone{max-width:390px;padding:20px 16px;border-width:6px;border-radius:30px}.phone .actions{grid-template-columns:1fr;gap:8px}.phone .actions button{width:100%;min-height:46px}.status-row{font-size:13px;align-items:flex-start}.status-row b{max-width:52%;text-align:right}.controls{display:grid;grid-template-columns:1fr;gap:8px}.controls button{width:100%;min-height:46px;padding:10px}.controls label{display:flex;justify-content:space-between;min-height:44px}.controls select{min-height:40px;min-width:100px;font:inherit;border:1px solid var(--line);border-radius:8px;background:white}.card{padding:18px 16px;border-radius:16px}.step{grid-template-columns:28px minmax(0,1fr);gap:10px}.step>b{height:28px;font-size:14px}.step h3{font-size:17px}.step p{font-size:14px}.step code{display:block;font-size:12px;white-space:normal;word-break:break-all;margin-top:10px;padding:10px}.scroll{overflow:visible}table,tbody,tr,td{display:block;width:100%}thead{display:none}tr{border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:10px;background:#f7f9f3}td{border:0;padding:7px 4px;font-size:14px;overflow-wrap:anywhere}td:before{content:attr(data-label);display:block;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}td:first-child{font-weight:650}.pin-layout{grid-template-columns:1fr;gap:20px}.pin-detail{position:static;padding:18px}.esp-board{width:100%;max-width:320px}.pin-tip{text-align:center}.wire-route{font-size:13px}.modal-head button{padding:8px 12px}.modal-body{padding:10px}.modal-body .diagram{min-height:240px}.modal-body .eyebrow{font-size:10px}.modal-body .badge{font-size:10px}.modal-body .card>div:first-child{flex-wrap:wrap}ol{padding-left:21px}li{margin-bottom:12px}footer{padding:20px 4%} }
+@media(prefers-reduced-motion:reduce){.flow.on{animation:none}}
+
+#sceneColumn .card:first-child{position:relative}.sim-speed-slot{display:flex;justify-content:flex-end;margin:10px 0 0}#speedControl{font-size:12px;gap:7px;color:var(--muted)}#speedControl select{font:inherit;min-height:30px;padding:3px 7px;border:1px solid var(--line);border-radius:7px;background:white}#simControls .controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}#simControls .controls button{font-size:13px;line-height:1.25;padding:8px;min-height:42px}#auto{grid-column:1/-1}#pinModal .pin-detail{position:static;margin:0;background:white}#pinModal .notice{margin:14px 0}#pinModal .modal-body{padding:12px}#pinModal{width:min(520px,94vw)}
+@media(max-width:800px){.pin-layout{display:block}.pin-layout>.pin-detail{display:none}.modal-body .diagram{min-height:0}.modal-body .card>small{font-size:11px;line-height:1.4;display:block;margin:8px 0}#sceneColumn .card{padding:14px}#sceneColumn .logs{max-height:90px}#sceneColumn .eyebrow{font-size:9px}#sceneColumn .badge{font-size:9px}#simControls .controls{grid-template-columns:1fr 1fr}#speedControl{min-height:30px}#speedControl select{min-width:65px;min-height:30px}#pinModal .pin-detail{display:block}#pinExample{width:100%}}
+.modal-head>button{flex-shrink:0;white-space:nowrap;font-size:14px}.modal-head h2{min-width:0}
+</style></head><body>
+<header><b>HORTA / EM CICLO</b><nav aria-label="Navegação"><button class="active" data-tab="painel">Painel e maquete</button><button data-tab="montagem">Montagem</button><button data-tab="tutorial">Primeiro uso</button></nav><span class="badge" id="mode">SIMULAÇÃO EDUCATIVA</span></header>
+<main><section id="painel"><div class="intro"><span class="eyebrow">Irrigação com reaproveitamento de água</span><h1>A água volta.<br>O cuidado continua.</h1><p class="muted">Acompanhe o caminho da água, entenda cada etapa e controle o ciclo pelo botão físico ou pelo celular.</p></div>
+<div class="grid"><div id="sceneColumn" class="sceneColumn"><div class="card"><div style="display:flex;justify-content:space-between;gap:10px"><span class="eyebrow">Maquete do sistema</span><span id="sceneLabel" class="badge">Aguardando</span></div>
+<svg class="diagram" viewBox="0 0 690 450" role="img" aria-label="Esquema conceitual: reservatório superior alimenta a horta; a sobra chega ao reservatório do meio e a submersa devolve a água ao superior.">
+<path d="M50 130H630M50 345H630" stroke="#e5e8dd" stroke-width="2"/>
+<path d="M68 65V165H242V65" fill="#eaf0e4" stroke="#76927f" stroke-width="3"/><path class="water" d="M70 105H240V163H70Z"/><text x="70" y="40" fill="#173d32" font-size="16">1. Reservatório de alta</text>
+<circle id="pumpA" class="pump" cx="215" cy="140" r="18"/><text x="63" y="192" font-size="14" fill="#173d32">Bomba de alta · 12 V</text>
+<path d="M232 140H320V85H525V116" stroke="#a9b8a8" fill="none" stroke-width="12"/><path id="flowA" class="flow" d="M232 140H320V85H525V116"/>
+<path d="M465 130L445 180M505 130V180M545 130L565 180" id="spray" class="flow"/>
+<path class="soil" d="M375 240H625L605 285H395Z"/><path d="M385 238H615" stroke="#bc9566" stroke-width="8"/>
+<g stroke="#4d9859" stroke-width="5"><path d="M420 235V202M470 235V195M520 235V205M570 235V198"/></g>
+<g class="leaf"><ellipse cx="411" cy="209" rx="14" ry="7" transform="rotate(25 411 209)"/><ellipse cx="430" cy="202" rx="14" ry="7" transform="rotate(-25 430 202)"/><ellipse cx="459" cy="204" rx="14" ry="7"/><ellipse cx="481" cy="195" rx="14" ry="7"/><ellipse cx="510" cy="214" rx="14" ry="7"/><ellipse cx="532" cy="205" rx="14" ry="7"/><ellipse cx="561" cy="208" rx="14" ry="7"/><ellipse cx="582" cy="198" rx="14" ry="7"/></g>
+
+<path d="M500 285V350H260" stroke="#a9b8a8" stroke-width="12" fill="none"/><path id="flowDrain" class="flow" d="M500 285V350H260"/>
+<path d="M68 315V414H270V315" fill="#edf2e9" stroke="#76927f" stroke-width="3"/><rect id="tankWater" class="water" x="70" y="391" width="198" height="21"/>
+<circle id="pumpB" class="pump" cx="105" cy="389" r="18"/><rect id="sensorShape" x="244" y="353" width="12" height="27" fill="#c5993b"/>
+<path d="M86 389H35V142H68" stroke="#a9b8a8" stroke-width="12" fill="none"/><path id="flowB" class="flow" d="M86 389H35V142H68"/>
+<text x="300" y="380" font-size="15" fill="#173d32">3. Reservatório do meio</text><text x="300" y="405" font-size="14" fill="#62766c">Sensor + submersa de 5 V</text><text x="375" y="305" font-size="16" fill="#173d32" stroke="white" stroke-width="7" paint-order="stroke">2. Horta e coleta da sobra</text></svg>
+<small>Representação conceitual, sem escala. A animação usa os comandos das bombas; não comprova vazão nem funcionamento mecânico.</small>
+<div id="simControls"><div class="controls"><button id="physical">Botão físico</button><button id="wet">Sensor: água</button><button id="auto" class="active">Água auto: sim</button></div><div class="controls"><button id="disconnect">Desconectar</button><button id="reset">Reiniciar</button><label id="speedControl"><span>Velocidade</span> <select id="speed" aria-label="Velocidade da simulação"><option value="1">1× real</option><option value="5" selected>5×</option><option value="20">20×</option></select></label></div></div></div>
+<div class="card"><span class="eyebrow">Linha do ciclo</span><div id="events" class="logs" aria-live="polite"></div></div></div>
+<div class="phoneColumn"><div class="phone"><div class="notch"></div><span class="eyebrow">Horta • painel local</span><p class="connection" id="connection">● Conectado · simulação</p><h2 id="phase" aria-live="polite">Aguardando botão</h2><p class="muted" id="hint">Pronto para um novo ciclo.</p><div class="status-row"><span>Alta · comando</span><b id="alta">Desligado</b></div><div class="status-row"><span>Submersa · comando</span><b id="sub">Desligado</b></div><div class="status-row"><span>Sensor confirmado</span><b id="sensor">Seco</b></div><div class="status-row"><span>Tempo do ciclo</span><b id="elapsed">00:00</b></div><div class="status-row"><span>Alta / submersa</span><b id="pumpTimes">00:00 / 00:00</b></div><p id="result" class="muted" style="font-size:13px">Nenhum ciclo iniciado.</p><div class="actions"><button class="primary" id="start">Iniciar ciclo</button><button class="danger" id="stop" disabled>Parar ciclo</button></div><button class="modal-trigger" id="openScene">Ver maquete e simular</button><p id="feedback" aria-live="polite" style="font-size:13px"></p><small>O botão físico funciona mesmo sem esta página. Desconectar o celular mantém o ciclo em execução.</small></div><div class="notice" id="simNotice">Este celular é uma prévia interativa. Não está conectado a uma placa nem aciona bombas reais.</div><div class="card"><span class="eyebrow">Duas formas. Um ciclo.</span><p>Botão físico: inicia quando parado e interrompe durante o ciclo.</p><p>Painel: comandos separados para iniciar e parar. Repetir “Iniciar” não interrompe o ciclo.</p></div></div></div></section>
+<section id="montagem" class="hidden"><span class="eyebrow">Guia de bancada</span><h1>Monte por etapas.</h1><p class="intro">Os mesmos componentes e a mesma estrutura do projeto original. Toda alteração de fio deve ser feita com as fontes e USB desligados.</p>
+<div class="notice"><b>Antes de energizar:</b> os sinais do ESP32 são de 3,3 V. Precisamos confirmar o modelo do módulo relé e a tensão da saída DO do sensor. A indicação “relé 5 V” descreve a alimentação da bobina e não garante compatibilidade com a entrada do ESP32.</div>
+<div class="card"><span class="eyebrow">Explore as ligações</span><h2>Toque em um pino do ESP32</h2><p>Os terminais destacados mostram o fio, o destino e um exemplo da função. O exemplo é educativo e não envia comandos à placa.</p><div class="pin-layout"><div><div class="esp-board" aria-label="Ilustração interativa de ESP32 DevKit V1 de 30 pinos"><div class="pin-rail"><span>EN</span><span>VP</span><span>VN</span><span>D34</span><span>D35</span><span>D32</span><span>D33</span><button data-pin="D25" aria-pressed="false" aria-label="Ver ligação D25">D25</button><button data-pin="D26" aria-pressed="false" aria-label="Ver ligação D26">D26</button><span>D27</span><span>D14</span><span>D12</span><span>D13</span><button data-pin="GND" aria-pressed="false" aria-label="Ver ligação GND">GND</button><span>VIN</span></div><div class="esp-center"><div class="antenna"></div><div class="chip">ESPRESSIF<br><b>ESP32<br>WROOM-32</b></div><small style="color:#c1d0c4">DevKit V1<br>30 pinos</small><div class="usb"></div></div><div class="pin-rail"><span>D23</span><span>D22</span><span>TX0</span><span>RX0</span><span>D21</span><button data-pin="GND" aria-pressed="false" aria-label="Ver ligação GND">GND</button><button data-pin="D19" aria-pressed="false" aria-label="Ver ligação D19">D19</button><button data-pin="D18" aria-pressed="false" aria-label="Ver ligação D18">D18</button><span>D5</span><span>TX2</span><span>RX2</span><span>D4</span><span>D2</span><span>D15</span><button data-pin="3V3" aria-pressed="false" aria-label="Ver ligação 3V3">3V3</button></div></div><p class="pin-tip muted">Ilustração de uma versão comum de 30 pinos. Confira nomes e posições na sua placa; existem variantes.</p></div><div class="pin-detail" aria-live="polite"><span class="eyebrow" id="pinTag">Pino D18</span><h3 id="pinName">Botão físico</h3><div class="wire-route"><b id="wireFrom">D18</b><span>→</span><b id="wireTo">Botão → GND</b></div><p id="pinDescription"></p><div class="notice" id="pinCaution"></div><button class="primary" id="pinExample">Ver exemplo desta ligação</button><div class="demo-box"><span class="demo-light" id="demoLight"></span><b id="demoTitle">Exemplo parado</b><p id="demoText">Escolha um pino e veja o que ele faz.</p></div></div></div></div><div class="card"><h2>1. Encontre os nomes na placa</h2><p>Na versão comum de 30 pinos, procure <b>D18, D19, D25 e D26</b> na impressão ao lado dos terminais. Algumas versões imprimem apenas <b>18, 19, 25 e 26</b> ou usam “IO”. São os mesmos números GPIO. A posição física varia; nunca conte pinos por uma imagem genérica.</p><div class="scroll"><table><thead><tr><th>Componente</th><th>Nome impresso mais comum</th><th>Nome no programa</th><th>Outro terminal</th></tr></thead><tbody><tr><td>Botão</td><td><b>D18 / 18</b></td><td>GPIO 18</td><td>GND</td></tr><tr><td>DO do sensor</td><td><b>D19 / 19</b></td><td>GPIO 19</td><td>Ver alimentação abaixo</td></tr><tr><td>IN1 · relé alta</td><td><b>D25 / 25</b></td><td>GPIO 25</td><td>Interface compatível com 3,3 V</td></tr><tr><td>IN2 · relé submersa</td><td><b>D26 / 26</b></td><td>GPIO 26</td><td>Interface compatível com 3,3 V</td></tr><tr><td>Referência dos sinais</td><td><b>GND</b></td><td>GND</td><td>GND do sensor e do controle dos relés</td></tr></tbody></table></div><p><b>Não há LED externo obrigatório.</b> O firmware usa somente os componentes existentes. Não confunda D18 com o 18º terminal da placa.</p></div>
+<div class="two"><div class="card"><h2>2. Botão e sensor</h2><p><b>Botão:</b> um contato em D18 e outro em GND. O programa usa o resistor interno. Em botão de quatro pernas, confirme quais contatos fecham ao pressionar.</p><p><b>Sensor:</b> GND em GND; DO em D19 somente depois de confirmar nível de até 3,3 V. AO não é usado.</p><p>Use VCC em 3V3 apenas se o módulo funcionar nessa tensão. Se ele precisar de 5 V e DO puder chegar a 5 V, será necessária conversão de nível. Não faça a conexão direta.</p><p>Ajuste o potenciômetro do sensor para distinguir água e seco. O programa assume LOW para água detectada e confirma a leitura após 1 segundo estável.</p></div><div class="card"><h2>3. Controle dos relés</h2><p>D25 comanda IN1; D26 comanda IN2, desde que as entradas sejam compatíveis com lógica de 3,3 V e não imponham 5 V aos GPIOs.</p><p>Não alimente bobinas pelo 3V3. A ligação de VCC, JD-VCC e jumpers depende do módulo; confirme o modelo antes de montar essa parte. Não remova jumpers por tentativa.</p><p>O firmware assume relés ativos em LOW. Durante boot/reset, o circuito externo deve manter os relés desligados. Teste isso sem as bombas; software não garante o estado anterior à inicialização.</p></div></div>
+<div class="card"><h2>4. Circuito de potência de cada bomba</h2><p>Faça um circuito separado para cada tensão. Os contatos do relé funcionam como interruptores.</p><div class="scroll"><table><thead><tr><th>Caminho do fio</th><th>Alta · canal 1</th><th>Submersa · canal 2</th></tr></thead><tbody><tr><td>Positivo da fonte → COM</td><td>Fonte 12 V (+) → COM1</td><td>Fonte 5 V (+) → COM2</td></tr><tr><td>NO → positivo da bomba</td><td>NO1 → bomba 12 V (+)</td><td>NO2 → bomba 5 V (+)</td></tr><tr><td>Negativo da bomba → fonte</td><td>Bomba (−) → fonte 12 V (−)</td><td>Bomba (−) → fonte 5 V (−)</td></tr></tbody></table></div><p>NC fica sem uso. Os negativos dos circuitos das bombas não precisam ser interligados ao ESP32 quando passam exclusivamente pelos contatos isolados dos relés. O lado de controle exige a referência adequada ao seu módulo.</p><p>Use fontes externas dimensionadas para a corrente de partida e contatos de relé classificados para as bombas em corrente contínua. Não ligue as bombas ao USB, 3V3 ou GPIOs do ESP32. Verifique supressão de transientes adequada às cargas.</p></div>
+<div class="card"><h2>5. Posição na maquete</h2><p><b>Alta:</b> reservatório superior e bomba de 12 V alimentando os sprinklers. <b>Horta:</b> recebe água e conduz a sobra ao reservatório do meio. <b>Meio:</b> sensor detecta água acumulada e a submersa de 5 V devolve ao superior. Mantenha placa, fontes e relés protegidos de respingos.</p><p>O sensor informa água ou seco em um ponto. Não mede litros, volume total, umidade da terra nem o nível do reservatório superior.</p></div></section>
+<section id="tutorial" class="hidden"><span class="eyebrow">Do código à primeira irrigação</span><h1>Conecte. Confira. Teste.</h1><div class="two"><div class="card"><h2>Gravar no ESP32</h2><div class="step"><b>1</b><div><h3>Prepare a Arduino IDE</h3><p>Em Preferências, adicione a URL de placas abaixo. No Gerenciador de Placas, instale <b>esp32 by Espressif Systems</b>.</p><code style="overflow-wrap:anywhere">https://espressif.github.io/arduino-esp32/package_esp32_index.json</code></div></div><div class="step"><b>2</b><div><h3>Abra a pasta do firmware</h3><p>Abra <b>HortaPortal/HortaPortal.ino</b>. Mantenha <b>Portal.h</b> na mesma pasta. Não exige bibliotecas externas ao núcleo ESP32.</p></div></div><div class="step"><b>3</b><div><h3>Selecione a placa e grave</h3><p>Escolha DOIT ESP32 DEVKIT V1, se disponível, ou ESP32 Dev Module para a placa WROOM-32. Selecione a porta USB. Grave com bombas desconectadas. Monitor Serial: <b>115200 baud</b>. Se necessário, segure BOOT durante a conexão de gravação.</p></div></div></div><div class="card"><h2>Abrir pelo celular</h2><div class="step"><b>1</b><div><h3>Conecte ao Wi-Fi Horta</h3><p>Senha inicial: <b>Horta2026</b>. Troque AP_PASSWORD no firmware antes do uso. Pessoas com acesso à rede podem comandar o ciclo.</p></div></div><div class="step"><b>2</b><div><h3>Aguarde o portal</h3><p>Se o celular disser “sem internet”, permaneça conectado. A abertura automática varia por aparelho. Em iPhone e Android, use o navegador se a janela não aparecer.</p></div></div><div class="step"><b>3</b><div><h3>Use o endereço local</h3><p>Digite <b>http://192.168.4.1</b>. Use HTTP, não HTTPS. O portal não intercepta páginas HTTPS.</p></div></div><p>Não é preciso internet, roteador, Bluetooth nem aplicativo. Se o celular sair da rede ou suspender a página, o ciclo continua na placa.</p></div></div>
+<div class="card"><h2>Checklist do primeiro teste</h2><ol><li>Com bombas desconectadas, confira se os relés ficam desligados ao energizar, reiniciar e gravar.</li><li>Confirme no painel: sensor seco e sensor molhado. Cada mudança exige 1 s estável.</li><li>Inicie pelo botão físico: alta liga; detecte água; após 2 s a alta desliga; aguarde 5 s; submersa liga; seque o sensor e confirme a parada.</li><li>Repita pelo painel. Durante cada etapa, teste a parada pelo botão e pelo painel.</li><li>Desconecte o celular durante o ciclo e confirme a continuidade. Reconecte e confira a etapa atual.</li><li>Teste limites com tempos temporariamente reduzidos no código e depois restaure 10 minutos.</li><li>Somente após confirmar o circuito elétrico, teste com bombas e água, respeitando a condição de operação de cada bomba.</li></ol><div class="notice">O botão interrompe por software. Não substitui um dispositivo físico de emergência. O limite de tempo não detecta imediatamente falta de água, transbordamento ou falha mecânica da bomba.</div></div>
+<div class="card"><h2>O que já foi verificado</h2><p id="validation">A simulação demonstra a lógica e a interface. Não valida a eletrônica, a compilação para a placa nem a abertura automática do portal no celular. Faça os testes de bancada acima.</p><p><a href="https://docs.espressif.com/projects/arduino-esp32/en/latest/api/wifi.html">Documentação Wi-Fi da Espressif</a> · <a href="https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html">Instalação do núcleo Arduino-ESP32</a></p></div></section></main><dialog id="pinModal" aria-labelledby="pinModalTitle"><div class="modal-head"><h2 id="pinModalTitle">Ligação do pino</h2><button id="closePin" aria-label="Fechar ligação">Fechar</button></div><div id="pinModalBody" class="modal-body"></div></dialog><dialog id="sceneModal" aria-labelledby="sceneTitle"><div class="modal-head"><h2 id="sceneTitle">Maquete e simulação</h2><button id="closeScene" aria-label="Fechar maquete">Fechar</button></div><div id="sceneModalBody" class="modal-body"></div></dialog><footer>Horta em ciclo · ESP32 DevKit V1 · Mesma estrutura, dois meios de comando. Sem dependências externas para carregar o painel.</footer>
 <script>
-(function () {
-  var btn = document.getElementById('copy-code');
-  var pre = document.getElementById('code');
-  btn.addEventListener('click', function () {
-    var text = pre.textContent;
-    function selectFallback() {
-      var r = document.createRange(); r.selectNodeContents(pre);
-      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
-      btn.textContent = 'Selecionado: use Ctrl+C';
-    }
-    try {
-      navigator.clipboard.writeText(text).then(function () {
-        btn.textContent = 'Copiado';
-        setTimeout(function () { btn.textContent = 'Copiar código'; }, 2000);
-      }, selectFallback);
-    } catch (e) { selectFallback(); }
-  });
-})();
-</script>
-</body>
-</html>
+const DEVICE=false;
+const $=id=>document.getElementById(id), phases=['Aguardando botão','Irrigando','Água detectada','Aguardando retorno','Retornando água'];
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hidden',s.id!==b.dataset.tab));document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));});
+let state=0,now=0,entered=0,cycleStart=0,highStart=0,lowStart=0,highMs=0,lowMs=0,elapsedMs=0,raw=false,stable=false,rawChanged=0,automatic=true,connected=true,latest=null,logs=[],result='Nenhum ciclo iniciado.',busy=false,polling=false,lastResponse=0;
+const fmt=ms=>{let t=Math.floor(ms/1000);return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');};
+function log(msg){logs.unshift(fmt(now)+' · '+msg);logs=logs.slice(0,15);$('events').textContent=logs.join('\n');$('events').style.whiteSpace='pre-line';}
+function transition(next,msg){state=next;entered=now;log(msg);}
+function finish(msg){if(state===1||state===2)highMs=now-highStart;if(state===4)lowMs=now-lowStart;if(state)elapsedMs=now-cycleStart;result=msg;transition(0,msg);}
+function startSim(){if(state)return;highMs=lowMs=elapsedMs=0;cycleStart=highStart=now;result='Ciclo em andamento.';transition(1,'Alta acionada.');}
+function sensor(v){if(raw!==v){raw=v;rawChanged=now;log(v?'Sensor bruto: água.':'Sensor bruto: seco.');}}
+function snapshot(){return {state,alta:state===1||state===2,sub:state===4,wet:stable,elapsed:state?now-cycleStart:elapsedMs,highMs:state===1||state===2?now-highStart:highMs,lowMs:state===4?now-lowStart:lowMs,result};}
+function renderPhone(s){$('phase').textContent=phases[s.state]||'Estado desconhecido';$('hint').textContent=['Pronto para um novo ciclo.','Aguardando água no reservatório do meio.','Espera de 2 s antes de desligar a alta.','Pausa de 5 s entre as bombas.','Aguardando o sensor confirmar seco.'][s.state];$('alta').textContent=s.alta?'Ligado':'Desligado';$('sub').textContent=s.sub?'Ligado':'Desligado';$('sensor').textContent=s.wet?'Água detectada':'Seco';$('elapsed').textContent=fmt(s.elapsed);$('pumpTimes').textContent=fmt(s.highMs)+' / '+fmt(s.lowMs);$('result').textContent=s.result;$('start').disabled=!connected||busy||s.state!==0;$('stop').disabled=!connected||busy||s.state===0;}
+function scene(s){$('sceneLabel').textContent=phases[s.state];['pumpA','flowA','spray','flowDrain'].forEach(id=>$(id).classList.toggle('on',s.alta));['pumpB','flowB'].forEach(id=>$(id).classList.toggle('on',s.sub));$('tankWater').setAttribute('y',s.wet?359:391);$('tankWater').setAttribute('height',s.wet?53:21);$('sensorShape').setAttribute('fill',s.wet?'#297a51':'#c5993b');}
+function render(){let s=snapshot();scene(s);if(connected)renderPhone(s);else{$('start').disabled=$('stop').disabled=true;}$('connection').textContent=connected?'● Conectado · simulação':'○ Sem conexão · dados congelados';$('disconnect').textContent=connected?'Desconectar':'Reconectar';$('wet').textContent=raw?'Sensor: seco':'Sensor: água';}
+async function command(action){if(busy||!connected)return;if(!DEVICE){if(action==='start')startSim();else if(state)finish('Interrompido pelo painel.');render();return;}busy=true;if(latest)renderPhone(latest);$('feedback').textContent='Enviando…';try{let r=await fetch('/api/'+action,{method:'POST',headers:{'X-Horta-Control':'1'},cache:'no-store',signal:AbortSignal.timeout(3000)});if(!r.ok)throw Error();let s=await r.json();latest=s;connected=true;lastResponse=Date.now();$('feedback').textContent=action==='start'?'Comando recebido pela placa.':'Parada recebida pela placa.';renderPhone(s);scene(s);}catch(e){connected=false;$('feedback').textContent='Sem confirmação. Confira a conexão e o estado antes de tentar novamente.';}finally{busy=false;if(latest)renderPhone(latest);}}
+$('start').onclick=()=>command('start');$('stop').onclick=()=>command('stop');$('physical').onclick=()=>{if(state)finish('Interrompido pelo botão físico.');else startSim();render();};$('wet').onclick=()=>{automatic=false;$('auto').classList.remove('active');$('auto').textContent='Água auto: não';sensor(!raw);render();};$('auto').onclick=()=>{automatic=!automatic;$('auto').classList.toggle('active',automatic);$('auto').textContent='Água auto: '+(automatic?'sim':'não');};$('disconnect').onclick=()=>{connected=!connected;render();};$('reset').onclick=()=>{state=0;now=entered=cycleStart=highStart=lowStart=highMs=lowMs=elapsedMs=0;raw=stable=false;rawChanged=0;connected=automatic=true;logs=[];result='Nenhum ciclo iniciado.';$('auto').textContent='Água auto: sim';$('auto').classList.add('active');log('Simulação reiniciada.');render();};
+let previous=performance.now();
+function tick(){let stamp=performance.now(),dt=Math.min(stamp-previous,1000);previous=stamp;if(DEVICE)return;now+=dt*Number($('speed').value);if(automatic&&state===1&&now-highStart>=8000)sensor(true);if(automatic&&state===4&&now-lowStart>=8000)sensor(false);if(now-rawChanged>=1000)stable=raw;if((state===1||state===2)&&now-highStart>=600000)finish('Limite de tempo da alta atingido.');else if(state===1&&stable)transition(2,'Água confirmada; espera de 2 s.');else if(state===2&&now-entered>=2000){highMs=now-highStart;transition(3,'Alta desligada; pausa de 5 s.');}else if(state===3&&now-entered>=5000){lowStart=now;transition(4,'Submersa acionada.');}else if(state===4&&now-lowStart>=600000)finish('Limite de tempo da submersa atingido.');else if(state===4&&!stable)finish('Ciclo concluído.');render();}
+async function poll(){if(!DEVICE||polling)return;polling=true;try{let r=await fetch('/api/status',{cache:'no-store',signal:AbortSignal.timeout(2500)});if(!r.ok)throw Error();latest=await r.json();connected=true;lastResponse=Date.now();renderPhone(latest);scene(latest);$('events').textContent=latest.result;}catch(e){connected=false;}finally{polling=false;$('connection').textContent=connected?'● Conectado · ESP32':'○ Sem conexão · dados desatualizados';if(!connected){$('start').disabled=$('stop').disabled=true;}}}
+if(DEVICE){$('mode').textContent='PLACA · WI-FI LOCAL';$('simControls').classList.add('hidden');$('simNotice').classList.add('hidden');connected=false;$('start').disabled=$('stop').disabled=true;$('connection').textContent='Conectando à placa…';poll();setInterval(poll,1000);}else{log('Simulação pronta. Aperte o botão ou use o celular.');render();}setInterval(tick,50);
+
+// Responsive scene modal: keep one live simulation DOM across layouts.
+const sceneColumn=$('sceneColumn'),sceneMarker=document.createComment('scene-home');sceneColumn.before(sceneMarker);
+const sceneModal=$('sceneModal'),mobileQuery=matchMedia('(max-width:800px)');
+function sceneLayout(){if(mobileQuery.matches){$('sceneModalBody').append(sceneColumn);}else{if(sceneModal.open)sceneModal.close();sceneMarker.after(sceneColumn);document.body.classList.remove('modal-open');}}
+$('openScene').onclick=()=>{sceneModal.showModal();document.body.classList.add('modal-open');};
+$('closeScene').onclick=()=>sceneModal.close();sceneModal.addEventListener('close',()=>{document.body.classList.remove('modal-open');$('openScene').focus();});
+sceneModal.addEventListener('click',e=>{if(e.target===sceneModal){const r=sceneModal.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)sceneModal.close();}});
+mobileQuery.addEventListener('change',sceneLayout);sceneLayout();
+document.querySelectorAll('table').forEach(t=>{const labels=Array.from(t.querySelectorAll('th')).map(c=>c.textContent);t.querySelectorAll('tbody tr').forEach(r=>Array.from(r.children).forEach((c,i)=>c.dataset.label=labels[i]||''));});
+const pinData={
+ D18:{name:'Botão físico',to:'Botão → GND',description:'Um terminal do botão vai em D18; o outro vai em GND. O resistor interno mantém a entrada em nível alto quando o botão está solto.',caution:'Use contatos que fecham ao apertar. O botão inicia quando parado e interrompe durante o ciclo.',example:'Botão pressionado → entrada LOW → início da irrigação. Se o ciclo já estiver rodando, o mesmo aperto solicita a parada.'},
+ D19:{name:'Leitura do sensor',to:'DO do sensor',description:'D19 recebe a saída digital DO do módulo LM393. A entrada confirma água ou seco após 1 segundo estável. AO não é usado.',caution:'DO deve ficar no máximo em 3,3 V. Confirme a alimentação e a tensão da saída antes de conectar.',example:'Água detectada → DO em LOW por 1 s → painel confirma água. Durante a irrigação, começa a espera de 2 s para desligar a alta.'},
+ D25:{name:'Comando da bomba de alta',to:'IN1 do relé',description:'D25 comanda o canal 1 do relé, que liga a bomba de 12 V. A potência passa pelos contatos COM1 e NO1, não pelo ESP32.',caution:'Conexão direta somente se IN1 aceitar lógica de 3,3 V e não aplicar 5 V ao ESP32. A bobina usa alimentação própria adequada.',example:'Início do ciclo → D25 em LOW → relé 1 acionado → COM1/NO1 fecham → fonte 12 V alimenta a bomba de alta.'},
+ D26:{name:'Comando da submersa',to:'IN2 do relé',description:'D26 comanda o canal 2. A submersa de 5 V devolve a água do reservatório do meio para o superior.',caution:'IN2 precisa ser compatível com lógica de 3,3 V. A bomba é alimentada pela fonte 5 V através de COM2/NO2.',example:'Alta desligada → pausa de 5 s → D26 em LOW → relé 2 aciona a submersa. Sensor seco confirmado encerra o retorno.'},
+ GND:{name:'Referência dos sinais',to:'GND de botão e sensor',description:'GND é o retorno do botão e a referência do sensor. O lado de controle do relé deve seguir a referência exigida pelo modelo do módulo.',caution:'Não confunda o GND do controle com os contatos COM/NO. As fontes das bombas ficam no circuito de potência descrito abaixo.',example:'Botão fecha D18 com GND → a entrada lê LOW. Sem a referência correta, a leitura do botão e do sensor pode ser incorreta.'},
+ '3V3':{name:'Alimentação de 3,3 V',to:'VCC do sensor, se compatível',description:'Este terminal oferece 3,3 V. Só alimente o módulo sensor por ele se o sensor funcionar corretamente nessa tensão.',caution:'Não alimenta bombas nem bobinas de relé. Se o sensor exigir 5 V, a saída DO precisará de interface adequada ao ESP32.',example:'Sensor compatível alimentado em 3,3 V → saída DO dentro da faixa da entrada. A leitura deve ser conferida seco e molhado antes do uso.'}
+};
+let selectedPin='D18',demoTimer=null;
+function selectPin(pin){clearTimeout(demoTimer);selectedPin=pin;const d=pinData[pin];$('pinTag').textContent='Pino '+pin;$('pinName').textContent=d.name;$('wireFrom').textContent=pin;$('wireTo').textContent=d.to;$('pinDescription').textContent=d.description;$('pinCaution').textContent=d.caution;$('demoTitle').textContent='Exemplo parado';$('demoText').textContent='Toque em “Ver exemplo desta ligação”.';$('demoLight').classList.remove('on');document.querySelectorAll('[data-pin]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.pin===pin)));}
+document.querySelectorAll('[data-pin]').forEach(b=>b.onclick=()=>{selectPin(b.dataset.pin);if(mobileQuery.matches)openPinModal();});
+$('pinExample').onclick=()=>{clearTimeout(demoTimer);$('demoLight').classList.add('on');$('demoTitle').textContent='Exemplo · '+selectedPin;$('demoText').textContent=pinData[selectedPin].example;demoTimer=setTimeout(()=>$('demoLight').classList.remove('on'),4000);};selectPin('D18');
+
+// Compact simulation toolbar, shared across desktop and modal.
+const speedSlot=document.createElement('div');speedSlot.className='sim-speed-slot';if(DEVICE)speedSlot.classList.add('hidden');speedSlot.append($('speedControl'));$('sceneColumn').querySelector('.card').children[0].after(speedSlot);
+const pinModal=$('pinModal'),pinDetail=document.querySelector('.pin-detail'),pinHome=document.createComment('pin-detail-home');pinDetail.before(pinHome);
+let lastPinButton=null;
+function openPinModal(){lastPinButton=document.activeElement;$('pinModalBody').append(pinDetail);$('pinModalTitle').textContent='Ligação · '+selectedPin;pinModal.showModal();document.body.classList.add('modal-open');}
+$('closePin').onclick=()=>pinModal.close();pinModal.addEventListener('close',()=>{document.body.classList.remove('modal-open');if(!mobileQuery.matches)pinHome.after(pinDetail);if(lastPinButton)lastPinButton.focus();});
+mobileQuery.addEventListener('change',()=>{if(!mobileQuery.matches){if(pinModal.open)pinModal.close();pinHome.after(pinDetail);}});
+// Opening the scene does not change the controller's state.
+function openSceneOnStart(){if(mobileQuery.matches&&!sceneModal.open){sceneModal.showModal();document.body.classList.add('modal-open');}}
+const originalStartSim=startSim;startSim=function(){const wasIdle=state===0;originalStartSim();if(wasIdle&&state!==0)openSceneOnStart();};
+const originalCommand=command;command=async function(action){await originalCommand(action);if(DEVICE&&action==='start'&&connected&&latest&&latest.state!==0)openSceneOnStart();};
+</script></body></html>
