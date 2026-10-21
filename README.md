@@ -84,58 +84,8 @@ Conecte à rede e permaneça nela quando o celular informar “sem internet”. 
 
 O painel usa consultas periódicas de estado e comandos separados para iniciar e parar. A senha da rede controla quem pode acessar o painel; não há contas individuais. O programa não depende da presença do celular.
 
-## Simulador e manual
-
-No computador, a maquete aparece ao lado do celular. No mobile, o celular aparece primeiro e iniciar o ciclo abre a maquete em modal.
-
-- Água automática para demonstrar o ciclo, ou sensor manual para explorar situações.
-- Velocidade de 1×, 5× ou 20×, selecionada acima da maquete.
-- Botão físico simulado para iniciar/interromper.
-- Desconectar e reconectar o celular para observar continuidade do ciclo e recuperação dos dados.
-- Pinos destacados do ESP32 mostram fio, destino, cuidados e exemplo educativo; no mobile, em modal.
-
-A chegada de água e o esvaziamento automáticos de 8 segundos são didáticos, exclusivos do simulador. O firmware usa o sensor real. Exemplos dos pinos nunca enviam comandos à placa.
-
-## Estrutura do repositório
-
-```text
-.
-├── README.md
-├── index.html                    # Entrada para o site, inclusive GitHub Pages
-├── site/index.html               # Manual e simulador, sem dependências externas
-├── HortaPortal/
-│   ├── HortaPortal.ino            # Controle, Wi-Fi, HTTP e DNS
-│   └── Portal.h                  # Site embutido em modo de placa
-├── scripts/gerar_portal.py        # Sincroniza o site com Portal.h
-├── bibliotecas/                  # Fontes oficiais, licenças, origem e hashes
-├── referencia/projeto-original-uno/ # Arquivos originais preservados
-├── COMECE-AQUI.md
-├── VALIDACAO.md
-├── LICENSE
-└── *.png                         # Prévias visuais
-```
-
-### Atualizar o site embutido
-
-Edite `site/index.html` e execute, a partir da raiz do repositório:
-
-```sh
-python3 scripts/gerar_portal.py
-```
 
 O script troca somente o marcador de modo para gerar `HortaPortal/Portal.h`. Depois recompile e grave a placa. A página do computador permanece no modo de simulação.
-
-### Colocar no GitHub
-
-Extraia o ZIP e envie **o conteúdo da pasta HortaPortal** para a raiz do seu repositório, incluindo os arquivos ocultos, sem enviar o próprio ZIP. O README será mostrado automaticamente.
-
-Para disponibilizar o manual e simulador no **GitHub Pages**, selecione publicação a partir da branch desejada e da pasta raiz. A página inicial encaminha para `site/`. O site publicado é uma demonstração; o controle real continua na rede local do ESP32. Nenhuma publicação no GitHub foi feita por esta entrega.
-
-## Limites e evidências
-
-[VALIDACAO.md](VALIDACAO.md) separa testes da lógica, testes de navegador e o que ainda precisa de bancada. O sistema não mede litros, vazão, umidade do solo nem o nível superior. Limites de tempo não detectam imediatamente falta de água ou transbordamento. O botão é parada por software; a aplicação não oferece garantia de tempo real.
-
-A inclusão das bibliotecas não altera o status da validação: ainda é necessário compilar, gravar e testar o conjunto real.
 
 ## Origem e licenças
 
